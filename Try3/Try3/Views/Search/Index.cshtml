@@ -1,0 +1,614 @@
+﻿@using RealEstateWebApp.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    Layout = null;
+    var cities = ViewBag.Cities as List<City> ?? new List<City>();
+    var propertyTypes = ViewBag.PropertyTypes as List<PropertyType> ?? new List<PropertyType>();
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ابحث عن عقار | SYRELIS - العقارات الفاخرة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/search.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* ===== أيقونة المستخدم الاحترافية ===== */
+        .user-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+            color: #0b1320;
+            font-weight: 800;
+            font-size: 1.1rem;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+            text-decoration: none;
+            user-select: none;
+            position: relative;
+        }
+
+            .user-avatar:hover {
+                transform: scale(1.08);
+                box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+                border-color: #d4af37;
+            }
+
+            .user-avatar .tooltip {
+                position: absolute;
+                top: 110%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #0b1320;
+                color: #d4af37;
+                padding: 6px 14px;
+                border-radius: 8px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(212, 175, 55, 0.2);
+                pointer-events: none;
+                font-family: 'Tajawal', sans-serif;
+            }
+
+            .user-avatar:hover .tooltip {
+                opacity: 1;
+                visibility: visible;
+                top: 120%;
+            }
+
+            .user-avatar .tooltip::before {
+                content: '';
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border: 6px solid transparent;
+                border-bottom-color: #0b1320;
+            }
+
+        /* ===== زر تسجيل الدخول الأنيق ===== */
+        .login-btn-nav {
+            background: transparent;
+            border: 1.5px dashed #d4af37;
+            color: #d4af37;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+            .login-btn-nav:hover {
+                background: #d4af37;
+                border: 1px solid rgb(50, 39, 11);
+                color: #0b1320;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            }
+
+        /* ===== تعديل النافبار ===== */
+        .navbar .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            align-items: center;
+        }
+
+            .navbar .nav-links li {
+                display: inline-block;
+            }
+
+            .navbar .nav-links a {
+                color: #f2efea;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 0.95rem;
+                transition: 0.3s;
+                white-space: nowrap;
+            }
+
+                .navbar .nav-links a:hover {
+                    color: #d4af37;
+                }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-right: auto;
+        }
+
+        /* ===== تنسيقات متجاوبة ===== */
+        @@media screen and (max-width: 768px) {
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 0.9rem;
+            }
+
+            .navbar .nav-links {
+                gap: 12px;
+            }
+
+                .navbar .nav-links a {
+                    font-size: 0.8rem;
+                }
+
+            .login-btn-nav {
+                padding: 8px 16px;
+                font-size: 0.75rem;
+            }
+
+            .navbar-right {
+                gap: 10px;
+            }
+        }
+
+        /* ===== تنسيقات المودال (مطابقة للصفحة الرئيسية) ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+            .modal-overlay.active {
+                visibility: visible;
+                opacity: 1;
+            }
+
+        .modal-card {
+            background: linear-gradient(145deg, #e6e9f8);
+            max-width: 440px;
+            width: 90%;
+            border-radius: 25px;
+            position: relative;
+            transform: scale(0.95);
+            transition: 0.3s;
+            box-shadow: 0 40px 70px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0b1320, #1a2a3e);
+            padding: 27px 0 20px;
+            text-align: center;
+            position: relative;
+        }
+
+            .modal-header .logo-icon {
+                position: relative;
+            }
+
+            .modal-header .logo_loin {
+                top: -21%;
+                right: -70%;
+                position: absolute;
+                width: 136px;
+            }
+
+            .modal-header h2 {
+                font-family: "Cinzel", serif;
+                font-size: 1.6rem;
+                color: #d6cb85;
+            }
+
+            .modal-header p {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.8rem;
+                margin-top: 5px;
+            }
+
+            .modal-header .close-modal {
+                position: absolute;
+                top: 18px;
+                left: 20px;
+                font-size: 31px;
+                cursor: pointer;
+                color: #d7d5aa;
+                transition: 0.2s;
+                background: none;
+                border: none;
+            }
+
+                .modal-header .close-modal:hover {
+                    color: #d4af37;
+                }
+
+        .modal-body {
+            padding: 8px 30px 30px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+            .input-group i {
+                position: absolute;
+                right: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #d4af37;
+            }
+
+            .input-group input {
+                width: 100%;
+                padding: 14px 45px 14px 20px;
+                border: 1.5px solid #e8e8ec;
+                border-radius: 60px;
+                font-size: 0.9rem;
+                font-family: "Tajawal", sans-serif;
+                background: #f9f9fc;
+            }
+
+                .input-group input:focus {
+                    outline: none;
+                    border-color: #d4af37;
+                    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+                }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #19283c, #1A2A3E);
+            border: 1px solid #D4AF37;
+            border-radius: 60px;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+            .auth-btn:hover {
+                background: #d4af37;
+                color: #0b1320;
+            }
+
+        .toggle-auth {
+            padding-top: 33px;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+            .toggle-auth a {
+                color: #19283c;
+                font-weight: 800;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+            text-align: center;
+            display: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+            .message.error {
+                background: #fee2e2;
+                color: #dc2626;
+                display: block;
+            }
+
+            .message.success {
+                background: #d1fae5;
+                color: #059669;
+                display: block;
+            }
+
+        /* ===== تحسين عرض الحقول في الشبكة ===== */
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .form-group.half-width {
+            grid-column: span 1;
+        }
+
+        /* في حالة الحقول المرتبطة (من-إلى) نضعها في صف واحد عند الحاجة */
+        .price-group,
+        .area-group {
+            display: contents; /* يجعل الحقلين يتصرفان كعناصر داخل الشبكة */
+        }
+
+        @@media screen and (max-width: 768px) {
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== شريط التنقل ========== -->
+    <nav class="navbar">
+        <img class="logo" src="~/image/hero.png" alt="SYRELIS" />
+        <ul class="nav-links">
+            <li><a href="/Home/Index"><span class="link_span">الرئيسية</span></a></li>
+            <li><a href="/Home/Announce" target="_blank" id="announceLink"><span class="link_span">أعلن عن عقارك</span></a></li>
+            <li><a href="/Search/Index"><span class="link_span">ابحث عن عقارك</span></a></li>
+            <li><a href="/Account/Index"><span class="link_span">حسابي</span></a></li>
+            <li><a href="/Home/Index#contactSection"><span class="link_span">تواصل معنا</span></a></li>
+        </ul>
+
+        <div class="navbar-right">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var userName = User.Identity?.Name ?? "مستخدم";
+                var firstLetter = userName.Length > 0 ? userName[0].ToString() : "?";
+                <div class="user-avatar" title="@userName">
+                    @firstLetter
+                    <span class="tooltip">@userName</span>
+                </div>
+            }
+            else
+            {
+                <button class="login-btn-nav" id="openModalBtn">
+                    <i class="fas fa-sign-in-alt" style="margin-left: 6px;"></i> تسجيل الدخول
+                </button>
+            }
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                ابحث عن عقارك
+            </h1>
+            <span class="page-subtitle">
+                <i class="fa-regular fa-building"></i> حدد تفضيلاتك للعثور على العقار المناسب
+            </span>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="icon-circle"><i class="fa-solid fa-sliders"></i></div>
+                فلترة البحث
+            </div>
+            <form id="searchForm" novalidate>
+                <div class="search-grid">
+
+                    <!-- نوع العقار -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-building"></i> نوع العقار</label>
+                        <select class="form-control" id="searchType">
+                            <option value="" disabled selected hidden>اختر نوع العقار</option>
+                            @foreach (var type in propertyTypes)
+                            {
+                                <option value="@type.Id">@type.NameAr</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- طبيعة العقار -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-tag"></i> طبيعة العقار</label>
+                        <select class="form-control" id="searchStatus">
+                            <option value="" disabled selected hidden>اختر طبيعة العقار</option>
+                            <option value="للبيع">للبيع</option>
+                        </select>
+                    </div>
+
+                    <!-- المدينة -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-city"></i> المدينة</label>
+                        <select class="form-control" id="searchCity">
+                            <option value="" disabled selected hidden>اختر المدينة</option>
+                            @foreach (var city in cities)
+                            {
+                                <option value="@city.Id">@city.NameAr</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- الحي -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-location-dot"></i> الحي / المنطقة</label>
+                        <input type="text" class="form-control" id="searchNeighborhood" placeholder="مثال: المالكي، الشعلان..." />
+                    </div>
+
+                    <!-- السعر (من - إلى) -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-dollar-sign"></i> السعر من</label>
+                        <input type="number" class="form-control" id="searchMinPrice" placeholder="أدنى سعر" min="0" data-validate="positive" />
+                        <span class="error-message" id="error-searchMinPrice"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-dollar-sign"></i> السعر إلى</label>
+                        <input type="number" class="form-control" id="searchMaxPrice" placeholder="أقصى سعر" min="0" data-validate="positive" />
+                        <span class="error-message" id="error-searchMaxPrice"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
+                    </div>
+
+                    <!-- العملة -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-coins"></i> العملة</label>
+                        <select class="form-control" id="searchCurrency">
+                            <option value="" disabled selected hidden>اختر العملة</option>
+                            <option value="USD">دولار أمريكي</option>
+                            <option value="SYP">ليرة سورية</option>
+                        </select>
+                    </div>
+
+                    <!-- المساحة (من - إلى) -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-vector-square"></i> المساحة من (م²)</label>
+                        <input type="number" class="form-control" id="searchMinArea" placeholder="أدنى مساحة" min="0" data-validate="positive" />
+                        <span class="error-message" id="error-searchMinArea"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-vector-square"></i> المساحة إلى (م²)</label>
+                        <input type="number" class="form-control" id="searchMaxArea" placeholder="أقصى مساحة" min="0" data-validate="positive" />
+                        <span class="error-message" id="error-searchMaxArea"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
+                    </div>
+
+                    <!-- عدد الغرف -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-bed"></i> عدد الغرف</label>
+                        <input type="number" class="form-control" id="searchRooms" placeholder="أدخل عدد الغرف" min="0" data-validate="positive" />
+                        <span class="error-message" id="error-searchRooms"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
+                    </div>
+
+                    <!-- عدد الحمامات -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-bath"></i> عدد الحمامات</label>
+                        <input type="number" class="form-control" id="searchBathrooms" placeholder="أدخل عدد الحمامات" min="0" data-validate="positive" />
+                        <span class="error-message" id="error-searchBathrooms"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
+                    </div>
+
+                    <!-- الطابق -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-layer-group"></i> رقم الطابق</label>
+                        <input type="number" class="form-control" id="searchFloor" placeholder="أدخل رقم الطابق" min="0" data-validate="positive" />
+                        <span class="error-message" id="error-searchFloor"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
+                    </div>
+
+                    <!-- عدد الطوابق الكلي (اختياري) -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-stairs"></i> عدد الطوابق الكلي</label>
+                        <input type="number" class="form-control" id="searchTotalFloors" placeholder="أدخل عدد الطوابق" min="0" data-validate="positive" />
+                        <span class="error-message" id="error-searchTotalFloors"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <div class="btn-group">
+                        <button type="reset" class="btn btn-secondary" id="resetBtn">
+                            <i class="fa-solid fa-rotate-right"></i> إعادة تعيين
+                        </button>
+                    </div>
+                    <form id="searchForm" novalidate>
+                        <!-- الحقول -->
+                        <div class="form-actions">
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </form>
+        </div>
+
+        <div id="resultsContainer"></div>
+    </div>
+
+    <!-- ===== مودال تسجيل الدخول ===== -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+                <div class="logo-icon">
+                    <img class="logo_loin" src="~/image/logo_loin.png" alt="" />
+                </div>
+                <h2 id="modalTitle">SYRELIS</h2>
+                <p id="modalSubtitle">سجل دخولك للوصول إلى حسابك</p>
+            </div>
+            <div class="modal-body">
+                <div id="messageBox" class="message"></div>
+
+                <div id="loginPanel">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" />
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="كلمة المرور ( 8 خانات )" />
+                    </div>
+                    <button class="auth-btn" id="doLoginBtn">
+                        <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                    </button>
+                    <div class="toggle-auth">
+                        ليس لديك حساب؟ <a id="switchToSignupBtn">إنشاء حساب جديد</a>
+                    </div>
+                </div>
+
+                <div id="signupPanel" style="display: none">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="signupName" placeholder="الاسم الكامل" />
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" />
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="signupPassword" placeholder="كلمة المرور ( 8 خانات )" />
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-check-circle"></i>
+                        <input type="password" id="signupConfirm" placeholder="تأكيد كلمة المرور" />
+                    </div>
+                    <button class="auth-btn" id="doSignupBtn">
+                        <i class="fas fa-user-plus"></i> إنشاء حساب
+                    </button>
+                    <div class="toggle-auth">
+                        لديك حساب؟ <a id="switchToLoginBtn">تسجيل الدخول</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- زر العودة للأعلى -->
+    <button class="scroll-top" id="scrollBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <script src="~/js/search.js"></script>
+
+</body>
+</html>

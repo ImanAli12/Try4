@@ -1,0 +1,1826 @@
+﻿@model RealEstateWebApp.Models.PropertyViewModel
+@{
+    ViewData["Title"] = "أعلن عن عقارك";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | SYRELIS - العقارات الفاخرة</title>
+
+    <!-- ====== جميع CDN ====== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        :root {
+            --dark: #192e43;
+            --gold: #d4af37;
+            --gray: #51596a;
+            --white: #ffffff;
+            --border: #e8e4dc;
+            --bg-light: #f8f9fa;
+            --shadow: 0 4px 16px rgba(11, 19, 32, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b1320;
+            font-family: 'Tajawal', sans-serif;
+            color: var(--gold);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: rgba(11, 19, 32, 0.96);
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            justify-content: space-evenly;
+            box-shadow: 0px 15px 30px -10px rgb(23, 22, 70);
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            width: 6%;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            min-width: 50px;
+            flex-shrink: 0;
+        }
+
+        .nav-links {
+            padding: 0 18rem;
+            display: flex;
+            gap: 70px;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+            .nav-links a {
+                color: #f2efea;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: 0.3s;
+                white-space: nowrap;
+            }
+
+                .nav-links a:hover {
+                    color: #d4af37;
+                }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-top: 25px;
+            margin-bottom: 28px;
+            background: var(--bg-light);
+            padding: 6px;
+            border-radius: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 13px 18px;
+            font-family: "Tajawal", sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gray);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .tab-btn i {
+                font-size: 1.05rem;
+            }
+
+            .tab-btn:hover {
+                color: var(--gold);
+            }
+
+            .tab-btn.active {
+                background: #192e43;
+                color: #fffefb;
+                box-shadow: -9px 4px 16px rgb(10 24 47 / 45%);
+            }
+
+        .tab-content {
+            display: none;
+            animation: fadeUp 0.4s ease;
+        }
+
+            .tab-content.active {
+                display: block !important;
+            }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            max-width: 100%;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 28px;
+            margin-top: 50px;
+            margin-bottom: 61px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+            .form-group.full {
+                grid-column: 1 / -1;
+            }
+
+            .form-group label {
+                font-weight: 500;
+                color: var(--dark);
+                font-size: 1rem;
+            }
+
+                .form-group label .req {
+                    font-weight: 800;
+                    color: #b20011;
+                    font-size: 1.3rem;
+                }
+
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: "Tajawal", sans-serif;
+            font-size: 0.95rem;
+            background: var(--white);
+            color: var(--dark);
+            transition: all 0.25s;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #192e43;
+                box-shadow: 0 0 0 2px rgb(215 219 232);
+            }
+
+        .form-step {
+            display: block !important;
+        }
+
+            .form-step.hidden {
+                display: none !important;
+            }
+
+        .main-layout {
+            margin-top: 63px;
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 28px !important;
+        }
+
+        .steps-sidebar {
+            width: 320px !important;
+            flex-shrink: 0 !important;
+        }
+
+        .steps-sticky {
+            position: sticky;
+            top: 110px;
+        }
+
+        .timeline {
+            gap: 1.5rem;
+            display: flex;
+            height: 35.5rem;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 35px 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            flex-direction: column;
+            position: relative;
+        }
+
+        .step {
+            display: flex !important;
+            align-items: center;
+            gap: 18px;
+            padding: 14px 0;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+
+        .circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--gray);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .info {
+            flex: 1;
+        }
+
+        .info-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .info-sub {
+            font-size: 0.82rem;
+            color: #999;
+        }
+
+        .step.active .circle {
+            border-color: #4e5468;
+            background: var(--dark);
+            color: white;
+            transform: scale(1.08);
+            box-shadow: 0 0 0 5px rgb(17 44 121 / 17%);
+        }
+
+        .step.active .info-title {
+            color: #022242;
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .step.active .info-sub {
+            color: #000000;
+        }
+
+        .step.completed .circle {
+            box-shadow: 0 0 0 5px rgb(169 160 9 / 17%);
+            border-color: #795e08;
+            background: #d4af37;
+            width: 52px;
+            height: 52px;
+            color: white;
+        }
+
+            .step.completed .circle::after {
+                content: "✓";
+                font-size: 1.5rem;
+            }
+
+            .step.completed .circle span {
+                display: none;
+            }
+
+        .content-area {
+            margin-top: -51px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .btn {
+            padding: 12px 26px;
+            border: none;
+            border-radius: 10px;
+            font-family: "Tajawal", sans-serif;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .btn-primary {
+            background: var(--dark);
+            color: #ffffff;
+            box-shadow: -1px 2px 9px rgb(11 19 32 / 73%);
+        }
+
+        .btn-secondary {
+            border: 1px solid #1a3250;
+            background: #1a314d;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            .btn-primary:hover, .btn-secondary:hover {
+                background: #ffffff;
+                color: #1a3250;
+            }
+
+        .form-actions {
+            display: flex !important;
+            justify-content: space-between;
+            padding-top: 23px !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 11px;
+        }
+
+        .upload-box {
+            border: 2px dashed var(--border);
+            border-radius: 14px;
+            padding: 32px 20px;
+            text-align: center;
+            background: var(--bg-light);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .upload-box:hover {
+                border-color: #05155e;
+                background: #e8e5cf69;
+            }
+
+            .upload-box i {
+                font-size: 2.8rem;
+                color: var(--gold);
+                margin-bottom: 10px;
+            }
+
+        .uploaded-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .uploaded-img {
+            position: relative;
+            aspect-ratio: 4/3;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+            .uploaded-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .uploaded-img .remove-btn {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background: var(--gold);
+                color: var(--dark);
+                border: none;
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            height: 65vh;
+            min-height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            background: #e5e7eb;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .coords-box {
+            text-align: center;
+            background: #e8e5cf69;
+            padding: 16px 6px;
+            border-radius: 10px;
+            margin-top: 14px;
+            display: flex;
+            gap: 11px;
+            flex-wrap: wrap;
+            border: 1px solid #0f377e;
+        }
+
+        .coord-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 282px;
+        }
+
+            .coord-item label {
+                font-weight: 700;
+                color: var(--dark);
+                font-size: 1rem;
+            }
+
+            .coord-item span {
+                font-family: "Courier New", monospace;
+                font-size: 1.05rem;
+                color: var(--dark);
+                font-weight: 700;
+                background: var(--white);
+                padding: 7px 12px;
+                border-radius: 7px;
+                border: 1px solid var(--border);
+            }
+
+        .hawya {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 11px;
+        }
+
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 13px 15px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+            .amenity-item input[type="checkbox"] {
+                width: 19px;
+                height: 19px;
+                accent-color: #f7cc43;
+                cursor: pointer;
+            }
+
+        .error-message {
+            color: #e5192c;
+            font-size: 0.95rem;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .form-control.error {
+            border-color: #dc3545 !important;
+        }
+
+        select.form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            padding: 10px 12px 10px 35px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .scroll-top {
+            color: #192e43;
+            font-size: 18px;
+            position: fixed;
+            bottom: 21px;
+            right: 26px;
+            width: 44px;
+            height: 44px;
+            background: #ffffff;
+            border: 3px solid #1a314d;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+            .scroll-top.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .control-container {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .map-btn {
+            border: none;
+            background: transparent;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #444;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+            .map-btn:hover {
+                background: #f5f5f5;
+            }
+
+            .map-btn.active {
+                background: #e8f0fe;
+                color: #1a73e8;
+                font-weight: 600;
+            }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 1rem;
+            right: 0.6rem;
+            z-index: 1000;
+            width: 35px;
+            height: 35px;
+            background: #fff;
+            border: 2px solid #bababa;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+        }
+
+        .pegman-btn {
+            position: absolute;
+            bottom: 27px;
+            right: 5px;
+            z-index: 1000;
+            width: 48px;
+            height: 48px;
+            background: #fff;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 3px 4px rgb(0 0 0);
+            cursor: grab;
+        }
+
+        .btn-reset-location {
+            font-family: "Tajawal", sans-serif;
+            border: 2px solid #0f377e;
+            border-radius: 15px;
+            font-size: 1rem;
+            color: #000000;
+            background: #aacbc8;
+            padding: 17px 23px;
+            cursor: pointer;
+            height: fit-content;
+            margin-top: 14px;
+            font-weight: 500;
+        }
+
+        .restart {
+            flex: 0 0 auto;
+        }
+
+        .timeline-bg-line, .timeline-progress {
+            position: absolute;
+            width: 2px;
+            border-radius: 1px;
+            pointer-events: none;
+            right: 21px;
+        }
+
+        .timeline-bg-line {
+            background: var(--border);
+        }
+
+        .timeline-progress {
+            background: var(--gold);
+            height: 0;
+            transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+        }
+
+        @@media screen and (max-width: 1200px) {
+            .nav-links {
+                padding: 0 8rem;
+                gap: 40px;
+            }
+
+            .main-layout {
+                flex-direction: column !important;
+            }
+
+            .steps-sidebar {
+                width: 100% !important;
+            }
+
+            .steps-sticky {
+                position: relative;
+                top: 0;
+            }
+
+            .timeline {
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 20px;
+                gap: 10px;
+                justify-content: center;
+            }
+
+            .timeline-bg-line, .timeline-progress {
+                display: none;
+            }
+
+            .step {
+                flex: 0 0 auto;
+                padding: 10px 15px;
+                background: var(--bg-light);
+                border-radius: 10px;
+                border: 2px solid transparent;
+            }
+        }
+
+        @@media screen and (max-width: 992px) {
+            .navbar {
+                justify-content: center;
+                padding: 10px 15px;
+            }
+
+            .nav-links {
+                padding: 0 2rem;
+                gap: 25px;
+            }
+
+            .container {
+                padding: 1.2rem;
+            }
+
+            .main-layout {
+                flex-direction: column !important;
+            }
+
+            .steps-sidebar {
+                width: 100% !important;
+            }
+
+            .steps-sticky {
+                position: relative;
+                top: 0;
+            }
+
+            .timeline {
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 15px;
+                gap: 8px;
+                justify-content: center;
+            }
+
+            .timeline-bg-line, .timeline-progress {
+                display: none;
+            }
+
+            .step {
+                flex: 0 0 auto;
+                padding: 8px 12px;
+                background: var(--bg-light);
+                border-radius: 8px;
+                border: 2px solid transparent;
+                gap: 10px;
+            }
+        }
+
+        @@media screen and (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+                justify-content: center;
+            }
+
+            .logo {
+                width: 50px;
+            }
+
+            .nav-links {
+                padding: 0;
+                gap: 15px;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 0.8rem;
+            }
+
+            .main-layout {
+                flex-direction: column !important;
+            }
+
+            .steps-sidebar {
+                width: 100% !important;
+            }
+
+            .steps-sticky {
+                position: relative;
+                top: 0;
+            }
+
+            .timeline {
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 12px;
+                gap: 6px;
+                justify-content: center;
+            }
+
+            .timeline-bg-line, .timeline-progress {
+                display: none;
+            }
+
+            .step {
+                flex: 0 0 auto;
+                padding: 6px 10px;
+                background: var(--bg-light);
+                border-radius: 8px;
+                border: 2px solid transparent;
+                gap: 8px;
+            }
+
+                .step .info-sub {
+                    display: none;
+                }
+
+            .circle {
+                width: 28px;
+                height: 28px;
+                font-size: 0.65rem;
+            }
+
+            .step.completed .circle {
+                width: 32px;
+                height: 32px;
+            }
+
+            .info-title {
+                font-size: 0.75rem;
+            }
+
+            .card {
+                padding: 15px;
+                border-radius: 14px;
+                max-width: 100%;
+                margin-right: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-group {
+                justify-content: center;
+            }
+
+            .btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+                border-radius: 8px;
+                justify-content: center;
+            }
+
+            .map-wrapper {
+                height: 40vh;
+                min-height: 250px;
+            }
+
+            .coords-box {
+                padding: 12px 15px;
+                gap: 12px;
+            }
+
+            .coord-item {
+                min-width: 140px;
+            }
+
+            .amenities-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 8px;
+            }
+
+            .upload-box {
+                padding: 20px 15px;
+            }
+
+                .upload-box i {
+                    font-size: 2rem;
+                }
+
+            .uploaded-images {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 10px;
+            }
+        }
+
+        @@media screen and (max-width: 480px) {
+            .nav-links {
+                gap: 8px;
+            }
+
+                .nav-links a {
+                    font-size: 0.7rem;
+                }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            .tab-btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+
+            .timeline {
+                padding: 8px;
+                gap: 4px;
+            }
+
+            .step {
+                padding: 4px 8px;
+                gap: 6px;
+            }
+
+            .circle {
+                width: 24px;
+                height: 24px;
+                font-size: 0.55rem;
+            }
+
+            .info-title {
+                font-size: 0.65rem;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            .form-control {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+
+            .coord-item {
+                min-width: 100px;
+            }
+
+            .amenities-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+
+            .uploaded-images {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== شريط التنقل ========== -->
+    <nav class="navbar">
+        <img class="logo" src="~/hero.png" alt="Logo">
+        <ul class="nav-links">
+            <li><a href="@Url.Action("Index", "Home")">الرئيسية</a></li>
+            <li><a href="@Url.Action("Create", "Properties")" id="announceLink"><span class="link_span">أعلن عن عقارك</span></a></li>
+            <li><a href="@Url.Action("Index", "Search")" id="searchLink"><span class="link_span">ابحث عن عقارك</span></a></li>
+            <li><a href="@Url.Action("Index", "Dashboard")"><span class="link_span">حسابي</span></a></li>
+            <li><a href="@Url.Action("Index", "Home")#contactSection" id="contactNavLink"><span class="link_span">تواصل معنا</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fa-solid fa-user-tie"></i> لوحة التحكم
+            </h1>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn" onclick="switchTab('favorites', this)">
+                <i class="fa-solid fa-heart"></i> المفضلة
+            </button>
+            <button class="tab-btn active" id="addPropertyBtn" onclick="switchTab('addProperty', this)">
+                <i class="fa-solid fa-plus"></i> إضافة عقار
+            </button>
+            <button class="tab-btn" onclick="switchTab('myProperties', this)">
+                <i class="fa-solid fa-building"></i> عقاراتي
+            </button>
+            <button class="tab-btn" onclick="switchTab('myNeeds', this)">
+                <i class="fas fa-home"></i> اطلب عقار
+            </button>
+        </div>
+
+        <!-- Tab: Add Property -->
+        <div id="addProperty" class="tab-content active">
+            <div class="main-layout">
+                <aside class="steps-sidebar">
+                    <div class="steps-sticky">
+                        <div class="timeline" id="timeline">
+                            <div class="timeline-bg-line" id="bgLine"></div>
+                            <div class="timeline-progress" id="progress"></div>
+                            <div class="step active" data-step="1">
+                                <div class="circle"><span>1</span></div>
+                                <div class="info">
+                                    <div class="info-title">الوصف</div>
+                                    <div class="info-sub">معلومات أساسية</div>
+                                </div>
+                            </div>
+                            <div class="step" data-step="2">
+                                <div class="circle"><span>2</span></div>
+                                <div class="info">
+                                    <div class="info-title">الوسائط</div>
+                                    <div class="info-sub">صور وفيديو</div>
+                                </div>
+                            </div>
+                            <div class="step" data-step="3">
+                                <div class="circle"><span>3</span></div>
+                                <div class="info">
+                                    <div class="info-title">الموقع</div>
+                                    <div class="info-sub">تحديد على الخريطة</div>
+                                </div>
+                            </div>
+                            <div class="step" data-step="4">
+                                <div class="circle"><span>4</span></div>
+                                <div class="info">
+                                    <div class="info-title">التفاصيل</div>
+                                    <div class="info-sub">المواصفات الفنية</div>
+                                </div>
+                            </div>
+                            <div class="step" data-step="5">
+                                <div class="circle"><span>5</span></div>
+                                <div class="info">
+                                    <div class="info-title">المرافق</div>
+                                    <div class="info-sub">الخدمات المتاحة</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="content-area">
+                    <div class="card">
+                        <form asp-action="Create" method="post" enctype="multipart/form-data" id="propForm">
+                            @Html.AntiForgeryToken()
+
+                            <!-- ====== الخطوة 1 ====== -->
+                            <div class="form-step" data-step="1">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>نوع العقار <span class="req">*</span></label>
+                                        <select asp-for="PropertyTypeId" class="form-control" required>
+                                            <option value="" disabled selected hidden>اختر النوع</option>
+                                            @if (Model.PropertyTypes != null)
+                                            {
+                                                foreach (var type in Model.PropertyTypes)
+                                                {
+                                                    <option value="@type.Id">@type.NameAr</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="PropertyTypeId" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>طبيعة العقار <span class="req">*</span></label>
+                                        <select asp-for="Status" class="form-control" required>
+                                            <option value="" disabled hidden>اختر</option>
+                                            <option value="للبيع" selected>للبيع</option>
+                                        </select>
+                                        <span asp-validation-for="Status" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>السعر <span class="req">*</span></label>
+                                        <input asp-for="Price" type="number" class="form-control" placeholder="أدخل السعر" required min="0" />
+                                        <span asp-validation-for="Price" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>العملة <span class="req">*</span></label>
+                                        <select asp-for="PriceCurrency" class="form-control" required>
+                                            <option value="" disabled hidden>اختر</option>
+                                            <option value="USD" selected>دولار أمريكي</option>
+                                            <option value="SYP">ليرة سورية</option>
+                                        </select>
+                                        <span asp-validation-for="PriceCurrency" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group full">
+                                        <label>ضع عنوان مناسب للعقار <span class="req">*</span></label>
+                                        <input asp-for="Title" class="form-control" placeholder="اكتب عنواناً مناسباً للعقار..." required />
+                                        <span asp-validation-for="Title" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group full">
+                                        <label>أضف تفاصيل إضافية (الوصف المفصل للعقار)</label>
+                                        <textarea asp-for="Description" class="form-control" placeholder="اكتب وصفاً مفصلاً للعقار..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ====== الخطوة 2 ====== -->
+                            <div class="form-step hidden" data-step="2">
+                                <div class="form-group">
+                                    <label>الصورة الأساسية <span class="req">*</span></label>
+                                    <div class="upload-box" onclick="document.getElementById('mainImg').click()">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                        <h4>اضغط لرفع الصورة الأساسية</h4>
+                                        <p>يفضل صورة واضحة وذات جودة عالية</p>
+                                        <input type="file" id="mainImg" name="MainImage" accept="image/*" hidden onchange="handleMainImg(this)" required />
+                                    </div>
+                                    <div id="mainImgPrev" class="uploaded-images"></div>
+                                    <span asp-validation-for="MainImage" class="error-message" id="mainImgError"></span>
+                                </div>
+
+                                <div class="form-group" style="margin-top: 22px">
+                                    <label>صور إضافية</label>
+                                    <div class="upload-box" onclick="document.getElementById('propImgs').click()">
+                                        <i class="fa-solid fa-images"></i>
+                                        <h4>اضغط لرفع صور إضافية</h4>
+                                        <p>يمكن اختيار أكثر من صورة</p>
+                                        <input type="file" id="propImgs" name="AdditionalImages" accept="image/*" multiple hidden onchange="handlePropImgs(this)" />
+                                    </div>
+                                    <div id="propImgsPrev" class="uploaded-images"></div>
+                                </div>
+                            </div>
+
+                            <!-- ====== الخطوة 3 ====== -->
+                            <div class="form-step hidden" data-step="3">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>المدينة <span class="req">*</span></label>
+                                        <select asp-for="CityId" class="form-control" id="citySelect" onchange="onCityChange(this.value)" required>
+                                            <option value="" disabled selected hidden>اختر المدينة</option>
+                                            @if (Model.Cities != null)
+                                            {
+                                                foreach (var city in Model.Cities)
+                                                {
+                                                    <option value="@city.Id">@city.NameAr</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="CityId" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>الحي <span class="req">*</span></label>
+                                        <input asp-for="Neighborhood" class="form-control" placeholder="اسم الحي" required />
+                                        <span asp-validation-for="Neighborhood" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group full">
+                                        <label>الشارع</label>
+                                        <input asp-for="Address" class="form-control" placeholder="اسم الشارع" />
+                                    </div>
+
+                                    <div class="form-group full">
+                                        <label>ادخل الموقع التفصيلي للعقار <span class="req">*</span></label>
+                                        <textarea asp-for="DetailedLocation" class="form-control" placeholder="أدخل موقع العقار بالتفصيل..." required></textarea>
+                                        <span asp-validation-for="DetailedLocation" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group full map-section">
+                                        <label>تحديد الموقع <span class="req">*</span></label>
+                                        <p class="map-instructions">اسحب الرجل الأصفر وحدد موقعك بدقة</p>
+                                        <div class="map-wrapper" id="mapWrapper">
+                                            <div id="map"></div>
+                                            <div class="control-container">
+                                                <button type="button" class="map-btn active" onclick="setLayer('map')" id="btnMap">
+                                                    <svg viewBox="0 0 24 24" width="16" height="16"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" /></svg>
+                                                    خريطة
+                                                </button>
+                                                <button type="button" class="map-btn" onclick="setLayer('satellite')" id="btnSat">
+                                                    <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" /></svg>
+                                                    قمر صناعي
+                                                </button>
+                                            </div>
+                                            <button type="button" class="fullscreen-btn" onclick="toggleFullscreen()" title="ملء الشاشة">
+                                                <svg viewBox="0 0 24 24" width="20" height="20"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" /></svg>
+                                            </button>
+                                            <button type="button" class="pegman-btn" id="pegmanBtn" title="اسحب لتحديد الموقع">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 38" width="34" height="34"><path d="M16.6 38.1h-5.5l-.2-2.9-.2 2.9H5.2L5 25.3l-.8 2a1.53 1.53 0 01-1.9.9l-1.2-.4a1.58 1.58 0 01-1-1.9v-.1c.3-.9 3.1-11.2 3.1-11.2a2.66 2.66 0 012.3-2l.6-.5a6.93 6.93 0 014.7-12 6.8 6.8 0 014.9 2 7 7 0 012 4.9 6.65 6.65 0 01-2.2 5l.7.5a2.78 2.78 0 012.4 2s2.9 11.2 2.9 11.3a1.53 1.53 0 01-.9 1.9l-1.3.4a1.63 1.63 0 01-1.9-.9l-.7-1.8z" fill="#333" opacity=".7" /><path d="m5.9 13.6 1.1-.9h7.8l1.2.9" fill="#ce592c" /><ellipse cx="10.9" cy="13.1" rx="2.7" ry=".3" fill="#ce592c" opacity=".5" /><path d="m20.6 26.1-2.9-11.3a1.71 1.71 0 00-1.6-1.2H5.7a1.69 1.69 0 00-1.5 1.3L1.1 26.2a.61.61 0 00.3.7l1.1.4a.61.61 0 00.7-.3l2.7-6.7.2 16.8h3.6l.6-9.3a.47.47 0 01.44-.5h.06c.4 0 .4.2.5.5l.6 9.3h3.6l.2-16.8 2.5 6.6a.52.52 0 00.66.31l1.2-.4a.57.57 0 00.5-.7Z" fill="#fdbf2d" /><path d="m7 13.6 3.9 6.7 3.9-6.7" fill="#cf572e" opacity=".6" /><circle cx="10.9" cy="7" r="5.9" fill="#fdbf2d" /></svg>
+                                            </button>
+                                            <div id="dragIcon" aria-hidden="true" style="position: fixed; display: none; z-index: 9999; pointer-events: none;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 38" width="52" height="52"><path d="M16.6 38.1h-5.5l-.2-2.9-.2 2.9H5.2L5 25.3l-.8 2a1.53 1.53 0 01-1.9.9l-1.2-.4a1.58 1.58 0 01-1-1.9v-.1c.3-.9 3.1-11.2 3.1-11.2a2.66 2.66 0 012.3-2l.6-.5a6.93 6.93 0 014.7-12 6.8 6.8 0 014.9 2 7 7 0 012 4.9 6.65 6.65 0 01-2.2 5l.7.5a2.78 2.78 0 012.4 2s2.9 11.2 2.9 11.3a1.53 1.53 0 01-.9 1.9l-1.3.4a1.63 1.63 0 01-1.9-.9l-.7-1.8z" fill="#333" opacity=".7" /><path d="m5.9 13.6 1.1-.9h7.8l1.2.9" fill="#ce592c" /><ellipse cx="10.9" cy="13.1" rx="2.7" ry=".3" fill="#ce592c" opacity=".5" /><path d="m20.6 26.1-2.9-11.3a1.71 1.71 0 00-1.6-1.2H5.7a1.69 1.69 0 00-1.5 1.3L1.1 26.2a.61.61 0 00.3.7l1.1.4a.61.61 0 00.7-.3l2.7-6.7.2 16.8h3.6l.6-9.3a.47.47 0 01.44-.5h.06c.4 0 .4.2.5.5l.6 9.3h3.6l.2-16.8 2.5 6.6a.52.52 0 00.66.31l1.2-.4a.57.57 0 00.5-.7Z" fill="#fdbf2d" /><path d="m7 13.6 3.9 6.7 3.9-6.7" fill="#cf572e" opacity=".6" /><circle cx="10.9" cy="7" r="5.9" fill="#fdbf2d" /></svg>
+                                            </div>
+                                        </div>
+
+                                        <div class="hawya">
+                                            <div class="coords-box">
+                                                <div class="coord-item">
+                                                    <label><i class="fa-solid fa-location-dot"></i> خط العرض</label>
+                                                    <span id="latDisplay">--</span>
+                                                </div>
+                                                <div class="coord-item">
+                                                    <label><i class="fa-solid fa-location-dot"></i> خط الطول</label>
+                                                    <span id="lngDisplay">--</span>
+                                                </div>
+                                            </div>
+                                            <div class="restart">
+                                                <button type="button" class="btn-reset-location" onclick="resetLocation()">
+                                                    <i class="fa-solid fa-rotate-right"></i>
+                                                    <span>إعادة تعيين</span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <input asp-for="Latitude" type="hidden" id="inputLat" required />
+                                        <input asp-for="Longitude" type="hidden" id="inputLng" required />
+                                        <span asp-validation-for="Latitude" class="error-message" id="mapError"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ====== الخطوة 4 ====== -->
+                            <div class="form-step hidden" data-step="4">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>رقم المحضر <span class="req">*</span></label>
+                                        <input asp-for="PropertyNumber" type="number" class="form-control" placeholder="أدخل رقم المحضر" required min="1" />
+                                        <span asp-validation-for="PropertyNumber" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>المساحة (م²) <span class="req">*</span></label>
+                                        <input asp-for="Area" type="number" class="form-control" placeholder="المساحة" required min="1" />
+                                        <span asp-validation-for="Area" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>عدد الغرف</label>
+                                        <input asp-for="Rooms" type="number" class="form-control" placeholder="الغرف" min="0" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>عدد الحمامات</label>
+                                        <input asp-for="Bathrooms" type="number" class="form-control" placeholder="الحمامات" min="0" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>رقم الطابق</label>
+                                        <input asp-for="Floor" type="number" class="form-control" placeholder="رقم الطابق" min="-2" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>عدد الطوابق</label>
+                                        <input asp-for="TotalFloors" type="number" class="form-control" placeholder="إجمالي الطوابق" min="0" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>متاح من تاريخ <span class="req">*</span></label>
+                                        <input asp-for="AvailableFrom" type="date" class="form-control" id="available_from" required />
+                                        <span asp-validation-for="AvailableFrom" class="error-message"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>رقم الاتصال <span class="req">*</span></label>
+                                        <input asp-for="AdvertiserPhone" type="tel" class="form-control" placeholder="09XXXXXXXX" required maxlength="10" />
+                                        <span asp-validation-for="AdvertiserPhone" class="error-message"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ====== الخطوة 5 ====== -->
+                            <div class="form-step hidden" data-step="5">
+                                <div class="form-group">
+                                    <label>المرافق</label>
+                                    <div class="amenities-grid">
+                                        @if (Model.Features != null)
+                                        {
+                                            foreach (var feature in Model.Features)
+                                            {
+                                                <label class="amenity-item">
+                                                    <input type="checkbox" name="FeatureIds" value="@feature.Id" />
+                                                    <i class="fa-solid @(feature.IconClass ?? "fa-check")"></i> @feature.NameAr
+                                                </label>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ====== أزرار التنقل ====== -->
+                            <div class="form-actions">
+                                <div class="btn-group">
+                                    <button type="button" id="prevBtn" onclick="changeStep(-1)" class="btn btn-secondary" style="display: none">
+                                        <i class="fa-solid fa-arrow-right"></i> السابق
+                                    </button>
+                                </div>
+                                <div class="btn-group">
+                                    <button type="button" id="nextBtn" onclick="changeStep(1)" class="btn btn-primary">
+                                        التالي <i class="fa-solid fa-arrow-left"></i>
+                                    </button>
+                                    <button type="submit" id="pubBtn" class="btn btn-primary" style="display: none">
+                                        ✓ نشر العقار
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== Scripts ====== -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // ====== المتغيرات العامة ======
+        let currentStep = 1;
+        let map, currentMarker;
+        let selectedCityLat = 33.5138;
+        let selectedCityLng = 36.2765;
+
+        // ====== إحداثيات المدن من قاعدة البيانات ======
+        var syriaCities = {
+            @if (Model.Cities != null)
+            {
+                    foreach (var city in Model.Cities)
+                    {
+                            <text>"@city.NameAr": { lat: 33.5, lng: 36.3, zoom: 13 },</text>
+                    }
+            }
+        };
+
+        // ====== دوال الخريطة ======
+        function initMap(cityId) {
+            console.log("🗺️ بدء تهيئة الخريطة...");
+
+            if (map) {
+                map.remove();
+                map = null;
+            }
+
+            var mapElement = document.getElementById("map");
+            if (!mapElement) {
+                console.error("❌ عنصر #map غير موجود في الصفحة!");
+                return;
+            }
+
+            var citySelect = document.getElementById('citySelect');
+            var cityName = citySelect?.selectedOptions[0]?.text || 'دمشق';
+            var defaultCoords = { lat: 33.5138, lng: 36.2765, zoom: 13 };
+            var c = syriaCities[cityName] || defaultCoords;
+
+            console.log("📍 المدينة:", cityName, "الإحداثيات:", c);
+
+            try {
+                map = L.map("map", {
+                    zoomControl: false,
+                    dragging: true,
+                    minZoom: 8,
+                    maxZoom: 19
+                }).setView([c.lat || 33.5138, c.lng || 36.2765], c.zoom || 13);
+
+                L.control.zoom({ position: "topright" }).addTo(map);
+
+                var baseLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                var satelliteLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+                    maxZoom: 19
+                });
+
+                var satelliteLabels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {
+                    maxZoom: 19
+                });
+
+                map._baseLayer = baseLayer;
+                map._satelliteLayer = satelliteLayer;
+                map._satelliteLabels = satelliteLabels;
+                map._currentLayer = 'map';
+
+                // إضافة الرجل الأصفر القابل للسحب
+                addPegmanToMap();
+
+                setTimeout(function() {
+                    map.invalidateSize();
+                    console.log("✅ الخريطة جاهزة!");
+                }, 500);
+
+            } catch (error) {
+                console.error("❌ خطأ في تهيئة الخريطة:", error);
+            }
+        }
+
+        // ====== إضافة Pegman (الرجل الأصفر) القابل للسحب ======
+        function addPegmanToMap() {
+            if (!map) return;
+
+            var pegmanIcon = L.divIcon({
+                className: 'pegman-marker',
+                html: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 38" width="44" height="44"><path d="M16.6 38.1h-5.5l-.2-2.9-.2 2.9H5.2L5 25.3l-.8 2a1.53 1.53 0 01-1.9.9l-1.2-.4a1.58 1.58 0 01-1-1.9v-.1c.3-.9 3.1-11.2 3.1-11.2a2.66 2.66 0 012.3-2l.6-.5a6.93 6.93 0 014.7-12 6.8 6.8 0 014.9 2 7 7 0 012 4.9 6.65 6.65 0 01-2.2 5l.7.5a2.78 2.78 0 012.4 2s2.9 11.2 2.9 11.3a1.53 1.53 0 01-.9 1.9l-1.3.4a1.63 1.63 0 01-1.9-.9l-.7-1.8z" fill="#333" opacity=".7"/><path d="m5.9 13.6 1.1-.9h7.8l1.2.9" fill="#ce592c"/><ellipse cx="10.9" cy="13.1" rx="2.7" ry=".3" fill="#ce592c" opacity=".5"/><path d="m20.6 26.1-2.9-11.3a1.71 1.71 0 00-1.6-1.2H5.7a1.69 1.69 0 00-1.5 1.3L1.1 26.2a.61.61 0 00.3.7l1.1.4a.61.61 0 00.7-.3l2.7-6.7.2 16.8h3.6l.6-9.3a.47.47 0 01.44-.5h.06c.4 0 .4.2.5.5l.6 9.3h3.6l.2-16.8 2.5 6.6a.52.52 0 00.66.31l1.2-.4a.57.57 0 00.5-.7Z" fill="#fdbf2d"/><path d="m7 13.6 3.9 6.7 3.9-6.7" fill="#cf572e" opacity=".6"/><circle cx="10.9" cy="7" r="5.9" fill="#fdbf2d"/></svg>',
+                iconSize: [44, 44],
+                iconAnchor: [22, 42]
+            });
+
+            var center = map.getCenter();
+            currentMarker = L.marker([center.lat, center.lng], {
+                icon: pegmanIcon,
+                draggable: true
+            }).addTo(map);
+
+            currentMarker.on('dragend', function(e) {
+                var pos = e.target.getLatLng();
+                document.getElementById("latDisplay").innerHTML = pos.lat.toFixed(6);
+                document.getElementById("lngDisplay").innerHTML = pos.lng.toFixed(6);
+                document.getElementById("inputLat").value = pos.lat;
+                document.getElementById("inputLng").value = pos.lng;
+
+                var mapErr = document.getElementById("mapError");
+                if (mapErr) {
+                    mapErr.textContent = "✅ تم تحديد الموقع بنجاح!";
+                    mapErr.style.display = "block";
+                    mapErr.style.color = "#22c55e";
+                    setTimeout(function() {
+                        mapErr.style.display = "none";
+                    }, 3000);
+                }
+            });
+
+            map.on('click', function(e) {
+                var pos = e.latlng;
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                }
+                currentMarker = L.marker([pos.lat, pos.lng], {
+                    icon: pegmanIcon,
+                    draggable: true
+                }).addTo(map);
+
+                document.getElementById("latDisplay").innerHTML = pos.lat.toFixed(6);
+                document.getElementById("lngDisplay").innerHTML = pos.lng.toFixed(6);
+                document.getElementById("inputLat").value = pos.lat;
+                document.getElementById("inputLng").value = pos.lng;
+
+                var mapErr = document.getElementById("mapError");
+                if (mapErr) {
+                    mapErr.textContent = "✅ تم تحديد الموقع بنجاح!";
+                    mapErr.style.display = "block";
+                    mapErr.style.color = "#22c55e";
+                    setTimeout(function() {
+                        mapErr.style.display = "none";
+                    }, 3000);
+                }
+
+                currentMarker.on('dragend', function(ev) {
+                    var newPos = ev.target.getLatLng();
+                    document.getElementById("latDisplay").innerHTML = newPos.lat.toFixed(6);
+                    document.getElementById("lngDisplay").innerHTML = newPos.lng.toFixed(6);
+                    document.getElementById("inputLat").value = newPos.lat;
+                    document.getElementById("inputLng").value = newPos.lng;
+                });
+            });
+        }
+
+        // ====== إدخال خط الطول والعرض يدوياً ======
+        function updateLocationFromInputs() {
+            var lat = document.getElementById("inputLat").value;
+            var lng = document.getElementById("inputLng").value;
+
+            if (lat && lng) {
+                var latNum = parseFloat(lat);
+                var lngNum = parseFloat(lng);
+
+                if (!isNaN(latNum) && !isNaN(lngNum)) {
+                    document.getElementById("latDisplay").innerHTML = latNum.toFixed(6);
+                    document.getElementById("lngDisplay").innerHTML = lngNum.toFixed(6);
+
+                    if (currentMarker) {
+                        map.removeLayer(currentMarker);
+                    }
+
+                    var pegmanIcon = L.divIcon({
+                        className: 'pegman-marker',
+                        html: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 38" width="44" height="44"><path d="M16.6 38.1h-5.5l-.2-2.9-.2 2.9H5.2L5 25.3l-.8 2a1.53 1.53 0 01-1.9.9l-1.2-.4a1.58 1.58 0 01-1-1.9v-.1c.3-.9 3.1-11.2 3.1-11.2a2.66 2.66 0 012.3-2l.6-.5a6.93 6.93 0 014.7-12 6.8 6.8 0 014.9 2 7 7 0 012 4.9 6.65 6.65 0 01-2.2 5l.7.5a2.78 2.78 0 012.4 2s2.9 11.2 2.9 11.3a1.53 1.53 0 01-.9 1.9l-1.3.4a1.63 1.63 0 01-1.9-.9l-.7-1.8z" fill="#333" opacity=".7"/><path d="m5.9 13.6 1.1-.9h7.8l1.2.9" fill="#ce592c"/><ellipse cx="10.9" cy="13.1" rx="2.7" ry=".3" fill="#ce592c" opacity=".5"/><path d="m20.6 26.1-2.9-11.3a1.71 1.71 0 00-1.6-1.2H5.7a1.69 1.69 0 00-1.5 1.3L1.1 26.2a.61.61 0 00.3.7l1.1.4a.61.61 0 00.7-.3l2.7-6.7.2 16.8h3.6l.6-9.3a.47.47 0 01.44-.5h.06c.4 0 .4.2.5.5l.6 9.3h3.6l.2-16.8 2.5 6.6a.52.52 0 00.66.31l1.2-.4a.57.57 0 00.5-.7Z" fill="#fdbf2d"/><path d="m7 13.6 3.9 6.7 3.9-6.7" fill="#cf572e" opacity=".6"/><circle cx="10.9" cy="7" r="5.9" fill="#fdbf2d"/></svg>',
+                        iconSize: [44, 44],
+                        iconAnchor: [22, 42]
+                    });
+
+                    currentMarker = L.marker([latNum, lngNum], {
+                        icon: pegmanIcon,
+                        draggable: true
+                    }).addTo(map);
+
+                    map.setView([latNum, lngNum], 15);
+
+                    var mapErr = document.getElementById("mapError");
+                    if (mapErr) {
+                        mapErr.textContent = "✅ تم تحديد الموقع بنجاح!";
+                        mapErr.style.display = "block";
+                        mapErr.style.color = "#22c55e";
+                        setTimeout(function() {
+                            mapErr.style.display = "none";
+                        }, 3000);
+                    }
+                }
+            }
+        }
+
+        // ====== دالة تغيير المدينة ======
+        function onCityChange(cityId) {
+            var cityName = document.getElementById('citySelect').selectedOptions[0]?.text;
+            if (cityName && syriaCities[cityName] && map) {
+                var c = syriaCities[cityName];
+                map.setView([c.lat, c.lng], c.zoom || 13);
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                    currentMarker = null;
+                }
+                document.getElementById("latDisplay").innerHTML = "--";
+                document.getElementById("lngDisplay").innerHTML = "--";
+                document.getElementById("inputLat").value = "";
+                document.getElementById("inputLng").value = "";
+                var mapErr = document.getElementById("mapError");
+                if (mapErr) mapErr.style.display = "block";
+                // إعادة إضافة الرجل الأصفر بعد تغيير المدينة
+                setTimeout(function() {
+                    addPegmanToMap();
+                }, 300);
+            }
+        }
+
+        // ====== دالة تغيير طبقة الخريطة ======
+        function setLayer(type) {
+            if (!map) return;
+            var btnMap = document.getElementById("btnMap");
+            var btnSat = document.getElementById("btnSat");
+
+            if (type === "satellite") {
+                if (map.hasLayer(map._baseLayer)) map.removeLayer(map._baseLayer);
+                map._satelliteLayer.addTo(map);
+                map._satelliteLabels.addTo(map);
+                btnSat.classList.add("active");
+                btnMap.classList.remove("active");
+            } else {
+                if (map.hasLayer(map._satelliteLayer)) map.removeLayer(map._satelliteLayer);
+                if (map.hasLayer(map._satelliteLabels)) map.removeLayer(map._satelliteLabels);
+                map._baseLayer.addTo(map);
+                btnMap.classList.add("active");
+                btnSat.classList.remove("active");
+            }
+        }
+
+        // ====== دالة ملء الشاشة ======
+        function toggleFullscreen() {
+            var w = document.getElementById("mapWrapper");
+            if (!document.fullscreenElement) {
+                w.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // ====== دالة إعادة تعيين الموقع ======
+        function resetLocation() {
+            document.getElementById("latDisplay").innerHTML = "--";
+            document.getElementById("lngDisplay").innerHTML = "--";
+            document.getElementById("inputLat").value = "";
+            document.getElementById("inputLng").value = "";
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+                currentMarker = null;
+            }
+            var mapErr = document.getElementById("mapError");
+            if (mapErr) {
+                mapErr.textContent = "⚠️ لم تحدد الموقع على الخريطة";
+                mapErr.style.display = "block";
+                mapErr.style.color = "#f59e0b";
+                setTimeout(function() {
+                    mapErr.style.display = "none";
+                }, 3000);
+            }
+            // إعادة إضافة الرجل الأصفر
+            setTimeout(function() {
+                addPegmanToMap();
+            }, 300);
+        }
+
+        // ====== دوال التنقل بين الخطوات ======
+        function changeStep(dir) {
+            var next = currentStep + dir;
+            if (next < 1 || next > 5) return;
+
+            if (dir > 0 && !validateCurrentStep()) {
+                return;
+            }
+
+            document.querySelector('.form-step[data-step="' + currentStep + '"]').classList.add("hidden");
+            document.querySelector('.form-step[data-step="' + next + '"]').classList.remove("hidden");
+            updateTimeline(next);
+            currentStep = next;
+
+            if (currentStep === 3) {
+                setTimeout(function() {
+                    if (!map) {
+                        initMap(document.getElementById('citySelect').value);
+                    } else {
+                        setTimeout(function() {
+                            map.invalidateSize();
+                        }, 100);
+                    }
+                }, 150);
+            }
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // ====== دالة تحديث التايم لاين ======
+        function updateTimeline(step) {
+            document.querySelectorAll(".timeline .step").forEach(function(el) {
+                var s = parseInt(el.dataset.step);
+                el.classList.remove("active", "completed");
+                if (s < step) el.classList.add("completed");
+                else if (s === step) el.classList.add("active");
+            });
+
+            var prev = document.getElementById("prevBtn");
+            var next = document.getElementById("nextBtn");
+            var pub = document.getElementById("pubBtn");
+
+            if (prev) prev.style.display = step === 1 ? "none" : "flex";
+            if (next) next.style.display = step === 5 ? "none" : "flex";
+            if (pub) pub.style.display = step === 5 ? "flex" : "none";
+
+            syncLine();
+        }
+
+        // ====== دالة مزامنة الخط ======
+        function syncLine() {
+            var tl = document.getElementById("timeline");
+            var circles = document.querySelectorAll(".timeline .circle");
+            if (!circles.length || !tl) return;
+
+            var bgLine = document.getElementById("bgLine");
+            var progress = document.getElementById("progress");
+            var tR = tl.getBoundingClientRect();
+            var fR = circles[0].getBoundingClientRect();
+            var lR = circles[circles.length - 1].getBoundingClientRect();
+            var active = document.querySelector(".timeline .step.active .circle") || circles[0];
+            var aR = active.getBoundingClientRect();
+
+            var tF = fR.top + fR.height / 2 - tR.top;
+            var tL = lR.top + lR.height / 2 - tR.top;
+            var tA = aR.top + aR.height / 2 - tR.top;
+            var rP = tR.width - (fR.left + fR.width / 2 - tR.left) - 1;
+
+            if (bgLine) {
+                bgLine.style.top = tF + "px";
+                bgLine.style.right = rP + "px";
+                bgLine.style.height = Math.max(0, tL - tF) + "px";
+            }
+            if (progress) {
+                progress.style.top = tF + "px";
+                progress.style.right = rP + "px";
+                progress.style.height = Math.max(0, tA - tF) + "px";
+            }
+        }
+
+        // ====== دوال التحقق من صحة البيانات ======
+        function validateCurrentStep() {
+            var step = currentStep;
+            var stepDiv = document.querySelector('.form-step[data-step="' + step + '"]');
+            var required = stepDiv.querySelectorAll("[required]");
+            var isValid = true;
+
+            required.forEach(function(field) {
+                // تجاهل الحقول المخفية في الخطوة 3 (الخريطة)
+                if (field.id === "inputLat" || field.id === "inputLng") {
+                    return;
+                }
+
+                if (!field.value || field.value === "") {
+                    field.classList.add("error");
+                    var errorDiv = field.parentElement.querySelector(".error-message");
+                    if (errorDiv) errorDiv.style.display = "block";
+                    isValid = false;
+                } else {
+                    field.classList.remove("error");
+                    var errorDiv = field.parentElement.querySelector(".error-message");
+                    if (errorDiv) errorDiv.style.display = "none";
+                }
+            });
+
+            if (step === 2) {
+                var mainImg = document.getElementById("mainImg");
+                if (!mainImg.files || mainImg.files.length === 0) {
+                    var err = document.getElementById("mainImgError");
+                    if (err) err.style.display = "block";
+                    isValid = false;
+                } else {
+                    var err = document.getElementById("mainImgError");
+                    if (err) err.style.display = "none";
+                }
+            }
+
+            if (step === 3) {
+                var lat = document.getElementById("inputLat").value;
+                var lng = document.getElementById("inputLng").value;
+
+                if (!lat || !lng) {
+                    var mapErr = document.getElementById("mapError");
+                    if (mapErr) {
+                        mapErr.textContent = "⚠️ لم تحدد الموقع على الخريطة، يمكنك تخطي هذه الخطوة مؤقتاً";
+                        mapErr.style.display = "block";
+                        mapErr.style.color = "#f59e0b";
+                    }
+                    return true;
+                } else {
+                    var mapErr = document.getElementById("mapError");
+                    if (mapErr) mapErr.style.display = "none";
+                }
+            }
+
+            return isValid;
+        }
+
+        // ====== دوال رفع الصور ======
+        function handleMainImg(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById("mainImgPrev").innerHTML = '<div class="uploaded-img"><img src="' + e.target.result + '"><button type="button" class="remove-btn" onclick="removeMainImg()"><i class="fa-solid fa-xmark"></i></button></div>';
+                    var err = document.getElementById("mainImgError");
+                    if (err) err.style.display = "none";
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removeMainImg() {
+            document.getElementById("mainImgPrev").innerHTML = "";
+            document.getElementById("mainImg").value = "";
+            var err = document.getElementById("mainImgError");
+            if (err) err.style.display = "block";
+        }
+
+        function handlePropImgs(input) {
+            if (input.files) {
+                var prev = document.getElementById("propImgsPrev");
+                Array.from(input.files).forEach(function(file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        prev.innerHTML += '<div class="uploaded-img"><img src="' + e.target.result + '"><button type="button" class="remove-btn" onclick="this.closest(\'.uploaded-img\').remove()"><i class="fa-solid fa-xmark"></i></button></div>';
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        // ====== دوال التبويب ======
+        function switchTab(tabId, btn) {
+            document.querySelectorAll(".tab-content").forEach(function(t) {
+                t.classList.remove("active");
+            });
+            document.querySelectorAll(".tab-btn").forEach(function(b) {
+                b.classList.remove("active");
+            });
+            document.getElementById(tabId).classList.add("active");
+            btn.classList.add("active");
+        }
+
+        // ====== تهيئة الصفحة ======
+        document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date().toISOString().split('T')[0];
+            var availableFrom = document.getElementById('available_from');
+            if (availableFrom) {
+                availableFrom.setAttribute('min', today);
+            }
+
+            // إدخال خط الطول والعرض يدوياً
+            var inputLat = document.getElementById("inputLat");
+            var inputLng = document.getElementById("inputLng");
+
+            if (inputLat) {
+                inputLat.addEventListener('change', updateLocationFromInputs);
+                inputLat.addEventListener('input', updateLocationFromInputs);
+            }
+            if (inputLng) {
+                inputLng.addEventListener('change', updateLocationFromInputs);
+                inputLng.addEventListener('input', updateLocationFromInputs);
+            }
+
+            // تهيئة الخريطة بعد تحميل الصفحة
+            setTimeout(function() {
+                var citySelect = document.getElementById('citySelect');
+                var cityId = citySelect?.value || 1;
+                initMap(cityId);
+                updateTimeline(1);
+            }, 500);
+
+            // تحديث حجم الخريطة عند تغيير حجم النافذة
+            window.addEventListener('resize', function() {
+                if (map) {
+                    setTimeout(function() {
+                        map.invalidateSize();
+                    }, 300);
+                }
+            });
+        });
+
+        // ====== Scroll to top button ======
+        window.onscroll = function() {
+            var btn = document.getElementById('scrollBtn');
+            if (btn) {
+                btn.classList.toggle('show', document.documentElement.scrollTop > 300);
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+﻿@model List<RealEstateWebApp.Models.City>
+@{
+    Layout = null;
+}
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SYRELIS | العقارات الفاخرة في سوريا</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/index.css" />
+</head>
+<body>
+
+    <!-- ===== شريط التنقل ===== -->
+    <nav class="navbar">
+        <img class="logo" src="~/image/hero.png" alt="SYRELIS Logo" />
+        <ul class="nav-links">
+            <li><a href="@Url.Action("Create", "Properties")" id="announceLink"><span class="link_span">أعلن عن عقارك</span></a></li>
+            <li><a href="@Url.Action("Index", "Search")" id="searchLink">ابحث عن عقارك</a></li>
+            <li><a href="#" id="myAccountLink">حسابي</a></li>
+            <li><a href="#" id="contactNavLink">تواصل معنا</a></li>
+        </ul>
+        <button class="login-btn-nav" id="openModalBtn">تسجيل الدخول</button>
+    </nav>
+
+    <!-- ===== الهيرو ===== -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>منزل <span>أحلامك</span><br />يبدأ من SYRELIS</h1>
+            <p>أكبر منصة عقارية فاخرة في سوريا – أكثر من 10,000 عقار حصري بثقة وأمان كامل</p>
+            <div>
+                <button class="btn-primary" id="explorePropertiesBtn">
+                    <i class="fa-solid fa-building"></i> استكشف العقارات
+                </button>
+                <button class="btn-outline" id="requestsBtn">
+                    <i class="fa-regular fa-clipboard"></i> العقارات المطلوبة
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== المدن (من قاعدة البيانات) ===== -->
+    <section class="featured">
+        <div class="container">
+            <h2 class="section-title">
+                عقارات <span style="font-size: 43px">Syrelis</span>
+            </h2>
+            <div class="cards-grid" id="citiesGrid"></div>
+        </div>
+
+        <div class="container-cities" id="citiesContainer">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var city in Model)
+                {
+                    <div class="container-city" data-city="@city.NameAr">
+                        <img src="~/image/@(city.NameAr).jpg" alt="@city.NameAr" onerror="this.src='~/image/default-city.jpg'" />
+                        <div class="overlay"></div>
+                        <div class="city">@city.NameAr</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p style="grid-column: span 4; text-align:center; color:gray; padding:40px 0;">
+                    ⚠️ لا توجد مدن مضافة في قاعدة البيانات بعد.
+                </p>
+            }
+        </div>
+    </section>
+
+    <!-- ===== التواصل ===== -->
+    <section class="contact-section" id="contactSection">
+        <div class="contact-grid">
+            <div class="contact-info">
+                <h3><i class="fas fa-crown"></i> SYRELIS</h3>
+                <p>منصة العقارات الفاخرة الرائدة في سوريا.</p>
+                <div class="contact-detail">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>دمشق – برج سيريليس، شارع المالكي</span>
+                </div>
+                <div class="contact-detail">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>+963 11 234 5678</span>
+                </div>
+                <div class="contact-detail">
+                    <i class="fas fa-envelope"></i>
+                    <span>info@syrelis.com</span>
+                </div>
+                <div class="contact-detail">
+                    <i class="fas fa-clock"></i>
+                    <span>الأحد – الخميس: 9ص – 8م</span>
+                </div>
+            </div>
+            <div class="contact-form">
+                <h3><i class="fas fa-pen-fancy"></i> راسلنا</h3>
+                <form id="contactForm" method="post" action="@Url.Action("Contact", "Home")">
+                    <input type="text" name="name" id="contactName" placeholder="الاسم الكامل" required />
+                    <input type="email" name="email" id="contactEmail" placeholder="البريد الإلكتروني" required />
+                    <textarea name="message" rows="3" id="contactMsg" placeholder="رسالتك..." required></textarea>
+                    <button type="submit" id="sendMsgBtn">
+                        إرسال الرسالة <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+                <div id="formFeedback" style="margin-top: 10px; font-size: 0.75rem"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== الفوتر ===== -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">SYRELIS</div>
+            <div class="footer-copyright">© 2026 SYRELIS – جميع الحقوق محفوظة</div>
+            <div class="footer-social">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== مودال تسجيل الدخول ===== -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+                <div class="logo-icon">
+                    <img class="logo_loin" src="~/image/logo_loin.png" alt="" />
+                </div>
+                <h2 id="modalTitle">SYRELIS</h2>
+                <p id="modalSubtitle">سجل دخولك للوصول إلى حسابك</p>
+            </div>
+            <div class="modal-body">
+                <div id="messageBox" class="message"></div>
+
+                <div id="loginPanel">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" />
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="كلمة المرور ( 8 خانات )" />
+                    </div>
+                    <button class="auth-btn" id="doLoginBtn">
+                        <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                    </button>
+                    <div class="toggle-auth">
+                        ليس لديك حساب؟ <a id="switchToSignupBtn">إنشاء حساب جديد</a>
+                    </div>
+                </div>
+
+                <div id="signupPanel" style="display: none">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="signupName" placeholder="الاسم الكامل" />
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" />
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="signupPassword" placeholder="كلمة المرور ( 8 خانات )" />
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-check-circle"></i>
+                        <input type="password" id="signupConfirm" placeholder="تأكيد كلمة المرور" />
+                    </div>
+                    <button class="auth-btn" id="doSignupBtn">
+                        <i class="fas fa-user-plus"></i> إنشاء حساب
+                    </button>
+                    <div class="toggle-auth">
+                        لديك حساب؟ <a id="switchToLoginBtn">تسجيل الدخول</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== مودال "يجب تسجيل الدخول" ===== -->
+    <div id="loginRequiredModal" class="modal-overlay login-required-modal">
+        <div class="modal-card">
+            <button class="close-modal" id="closeRequiredModalBtn" style="top: 18px; left: 26.7rem; color: #1a2c44">
+                &times;
+            </button>
+            <div class="login-required-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 class="login-required-title">يجب تسجيل الدخول أولاً</h2>
+            <p class="login-required-text" id="loginRequiredText">
+                للوصول إلى هذه الصفحة، يجب أن تكون مسجلاً دخولك في حسابك.
+                <br />سجّل دخولك الآن واستمتع بجميع خدماتنا!
+            </p>
+            <div class="login-required-buttons">
+                <button class="btn-cancel" id="cancelRequiredBtn">
+                    <i class="fas fa-times"></i> إلغاء
+                </button>
+                <button class="btn-login-now" id="goToLoginBtn">
+                    <i class="fas fa-sign-in-alt"></i> سجل دخولك الآن
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ربط ملف الجافاسكريبت الخارجي ===== -->
+    <script src="~/js/index.js"></script>
+
+</body>
+</html>
