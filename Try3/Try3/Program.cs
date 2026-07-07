@@ -14,7 +14,7 @@ using Microsoft.Extensions.Hosting;
 
             // ربط قاعدة البيانات
             builder.Services.AddDbContext<ApplicationDbContext>(o =>
-                o.UseSqlServer(builder.Configuration.GetConnectionString("Try33")));
+                o.UseSqlServer(builder.Configuration.GetConnectionString("Try4")));
 
             // ✅ إضافة Identity مع دعم Entity Framework
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

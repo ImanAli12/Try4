@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace RealEstateWebApp.Controllers
 {
-    [Authorize]
+   // [Authorize]
     public class PropertiesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,7 +25,8 @@ namespace RealEstateWebApp.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        // GET: Properties/Create
+    [HttpGet]
+        [Route("Properties/Create")]
         public async Task<IActionResult> Create()
         {
             var viewModel = new PropertyViewModel
