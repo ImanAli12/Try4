@@ -16,6 +16,7 @@ namespace RealEstateWebApp.Controllers
             _context = context;
         }
 
+        // ===== عرض صفحة البحث =====
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -24,12 +25,13 @@ namespace RealEstateWebApp.Controllers
             return View();
         }
 
+        // ===== تنفيذ البحث (AJAX) =====
         [HttpGet]
         public async Task<IActionResult> Search(
             int? propertyTypeId,
             string? status,
             int? cityId,
-            string? neighborhood,
+            string? neighborhood,  // ✅ تغيير من int? إلى string?
             decimal? minPrice,
             decimal? maxPrice,
             string? currency,
@@ -42,33 +44,33 @@ namespace RealEstateWebApp.Controllers
         {
             var query = _context.Properties
                 .Include(p => p.City)
-                .Include(p => p.Neighborhood)
                 .Include(p => p.PropertyType)
                 .Include(p => p.Images)
                 .Where(p => p.IsActive == true && p.Status == "للبيع");
 
+            // تطبيق الفلاتر
             if (propertyTypeId.HasValue && propertyTypeId.Value > 0)
                 query = query.Where(p => p.PropertyTypeId == propertyTypeId.Value);
 
             if (cityId.HasValue && cityId.Value > 0)
                 query = query.Where(p => p.CityId == cityId.Value);
 
+            // ✅ البحث عن الحي كنص
             if (!string.IsNullOrWhiteSpace(neighborhood))
                 query = query.Where(p => p.Neighborhood != null && p.Neighborhood.Contains(neighborhood));
 
-            // ===== السعر (من - إلى) =====
             if (minPrice.HasValue)
                 query = query.Where(p => p.Price >= minPrice.Value);
+
             if (maxPrice.HasValue)
                 query = query.Where(p => p.Price <= maxPrice.Value);
 
-            // ===== العملة =====
             if (!string.IsNullOrWhiteSpace(currency))
                 query = query.Where(p => p.PriceCurrency == currency);
 
-            // ===== المساحة (من - إلى) =====
             if (minArea.HasValue)
                 query = query.Where(p => p.Area >= minArea.Value);
+
             if (maxArea.HasValue)
                 query = query.Where(p => p.Area <= maxArea.Value);
 
@@ -81,7 +83,11 @@ namespace RealEstateWebApp.Controllers
             if (floor.HasValue && floor.Value >= 0)
                 query = query.Where(p => p.Floor == floor.Value);
 
-            var results = await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
+            // ترتيب حسب الأحدث
+            var results = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
             return PartialView("_PropertyResults", results);
         }
     }
