@@ -11,7 +11,6 @@
         <div class="property-grid">
             @foreach (var property in Model)
             {
-                // الحصول على الصورة الرئيسية
                 var mainImage = property.Images?.FirstOrDefault(i => i.IsMain) ?? property.Images?.FirstOrDefault();
                 var imageUrl = mainImage?.ImageUrl ?? "/image/default-property.jpg";
 
@@ -25,7 +24,7 @@
                         <div class="property-title">@property.Title</div>
                         <div class="property-location">
                             <i class="fa-solid fa-location-dot"></i>
-                            @(property.City?.NameAr ?? "") - @(property.Neighborhood?? "")
+                            @(property.City?.NameAr ?? "") - @(property.Neighborhood ?? "")
                         </div>
                         <div class="property-features">
                             <span><i class="fa-solid fa-vector-square"></i> @property.Area م²</span>
@@ -49,6 +48,10 @@ else
             <i class="fa-regular fa-face-frown"></i>
             <h3>لا توجد نتائج</h3>
             <p>لم نعثر على عقارات تطابق معايير البحث. حاول تعديل الفلاتر.</p>
+            @if (!string.IsNullOrEmpty(ViewBag.NoDataMessage))
+            {
+                <p style="color:#d4af37; margin-top:8px;">💡 @ViewBag.NoDataMessage</p>
+            }
         </div>
     </div>
 }
