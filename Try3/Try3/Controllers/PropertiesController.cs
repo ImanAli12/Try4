@@ -146,9 +146,9 @@ namespace RealEstateWebApp.Controllers
             _context.Properties.Add(property);
             await _context.SaveChangesAsync();
 
-            
+
             TempData["Success"] = "✅ تم نشر العقار بنجاح!";
-            return RedirectToAction("MyProperties", "Dashboard");
+            return RedirectToAction("MyProperties", "Properties");
         }
 
         // GET: Properties/MyProperties
@@ -359,8 +359,32 @@ namespace RealEstateWebApp.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "تم تحديث العقار بنجاح!";
-            return RedirectToAction("Index", "Dashboard");
+            TempData["Success"] = "✅ تم تحديث العقار بنجاح!";
+            return RedirectToAction("MyProperties", "Properties");
+        }
+        // GET: Properties/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var property = await _context.Properties
+                .Include(p => p.Images)
+                .Include(p => p.Features)
+                .Include(p => p.City)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Advertiser)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (property.AdvertiserId != user?.Id)
+            {
+                return Forbid();
+            }
+
+            return View(property);
         }
 
         // POST: Properties/Delete/5
@@ -454,5 +478,7 @@ namespace RealEstateWebApp.Controllers
             int nextNumber = (lastProperty?.Id ?? 0) + 1;
             return $"PROP-{DateTime.Now.Year}-{nextNumber:D6}";
         }
+       
     }
-}
+
+    }

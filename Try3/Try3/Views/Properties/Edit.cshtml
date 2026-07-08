@@ -1,0 +1,451 @@
+﻿@model RealEstateWebApp.Models.PropertyViewModel
+@{
+    ViewData["Title"] = "تعديل العقار";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تعديل العقار | SYRELIS</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        :root {
+            --dark: #192e43;
+            --gold: #d4af37;
+            --gray: #51596a;
+            --white: #ffffff;
+            --border: #e8e4dc;
+            --bg-light: #f8f9fa;
+            --shadow: 0 4px 16px rgba(11, 19, 32, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b1320;
+            font-family: 'Tajawal', sans-serif;
+            color: var(--gold);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: rgba(11, 19, 32, 0.96);
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            justify-content: space-evenly;
+            box-shadow: 0px 15px 30px -10px rgb(23, 22, 70);
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            width: 6%;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            min-width: 50px;
+            flex-shrink: 0;
+        }
+
+        .nav-links {
+            padding: 0 18rem;
+            display: flex;
+            gap: 70px;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+            .nav-links a {
+                color: #f2efea;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: 0.3s;
+                white-space: nowrap;
+            }
+
+                .nav-links a:hover {
+                    color: #d4af37;
+                }
+
+        .card {
+            max-width: 100%;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 28px;
+            margin-top: 50px;
+            margin-bottom: 61px;
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--bg-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .card-header .icon-circle {
+                width: 40px;
+                height: 40px;
+                background: #192e43;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffd754;
+                font-size: 1.2rem;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+            .form-group.full {
+                grid-column: 1 / -1;
+            }
+
+            .form-group label {
+                font-weight: 500;
+                color: var(--dark);
+                font-size: 1rem;
+            }
+
+                .form-group label .req {
+                    font-weight: 800;
+                    color: #b20011;
+                    font-size: 1.3rem;
+                }
+
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: "Tajawal", sans-serif;
+            font-size: 0.95rem;
+            background: var(--white);
+            color: var(--dark);
+            transition: all 0.25s;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #192e43;
+                box-shadow: 0 0 0 2px rgb(215 219 232);
+            }
+
+        .btn {
+            padding: 12px 26px;
+            border: none;
+            border-radius: 10px;
+            font-family: "Tajawal", sans-serif;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .btn-primary {
+            background: var(--dark);
+            color: #ffffff;
+            box-shadow: -1px 2px 9px rgb(11 19 32 / 73%);
+        }
+
+        .btn-secondary {
+            border: 1px solid #1a3250;
+            background: #1a314d;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            .btn-primary:hover,
+            .btn-secondary:hover {
+                background: #ffffff;
+                color: #1a3250;
+            }
+
+        .form-actions {
+            display: flex !important;
+            justify-content: space-between;
+            padding-top: 23px !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 11px;
+        }
+
+        .error-message {
+            color: #e5192c;
+            font-size: 0.95rem;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .form-control.error {
+            border-color: #dc3545 !important;
+        }
+
+        select.form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            padding: 10px 12px 10px 35px;
+            background-color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== شريط التنقل ========== -->
+    <nav class="navbar">
+        <img class="logo" src="~/hero.png" alt="Logo">
+        <ul class="nav-links">
+            <li><a href="/">الرئيسية</a></li>
+            <li><a href="/Properties/Create">أعلن عن عقارك</a></li>
+            <li><a href="#">ابحث عن عقارك</a></li>
+            <li><a href="/Properties/MyProperties">عقاراتي</a></li>
+            <li><a href="#">تواصل معنا</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <div class="icon-circle"><i class="fa-solid fa-pen"></i></div>
+                تعديل العقار
+            </div>
+
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="PropertyNumber" />
+
+                <div class="form-grid">
+                    <!-- نوع العقار -->
+                    <div class="form-group">
+                        <label>نوع العقار <span class="req">*</span></label>
+                        <select asp-for="PropertyTypeId" class="form-control" required>
+                            <option value="">اختر النوع</option>
+                            @foreach (var type in Model.PropertyTypes)
+                            {
+                                <option value="@type.Id">@type.NameAr</option>
+                            }
+                        </select>
+                        <span asp-validation-for="PropertyTypeId" class="error-message"></span>
+                    </div>
+
+                    <!-- طبيعة العقار -->
+                    <div class="form-group">
+                        <label>طبيعة العقار <span class="req">*</span></label>
+                        <select asp-for="Status" class="form-control" required>
+                            <option value="للبيع">للبيع</option>
+                        </select>
+                        <span asp-validation-for="Status" class="error-message"></span>
+                    </div>
+
+                    <!-- السعر -->
+                    <div class="form-group">
+                        <label>السعر <span class="req">*</span></label>
+                        <input asp-for="Price" type="number" class="form-control" placeholder="أدخل السعر" required min="0" />
+                        <span asp-validation-for="Price" class="error-message"></span>
+                    </div>
+
+                    <!-- العملة -->
+                    <div class="form-group">
+                        <label>العملة <span class="req">*</span></label>
+                        <select asp-for="PriceCurrency" class="form-control" required>
+                            <option value="USD">دولار أمريكي</option>
+                            <option value="SYP">ليرة سورية</option>
+                        </select>
+                        <span asp-validation-for="PriceCurrency" class="error-message"></span>
+                    </div>
+
+                    <!-- العنوان -->
+                    <div class="form-group full">
+                        <label>عنوان العقار <span class="req">*</span></label>
+                        <input asp-for="Title" class="form-control" placeholder="اكتب عنواناً مناسباً للعقار..." required />
+                        <span asp-validation-for="Title" class="error-message"></span>
+                    </div>
+
+                    <!-- الوصف -->
+                    <div class="form-group full">
+                        <label>الوصف المفصل</label>
+                        <textarea asp-for="Description" class="form-control" placeholder="اكتب وصفاً مفصلاً للعقار..." rows="4"></textarea>
+                    </div>
+
+                    <!-- المدينة -->
+                    <div class="form-group">
+                        <label>المدينة <span class="req">*</span></label>
+                        <select asp-for="CityId" class="form-control" required>
+                            <option value="">اختر المدينة</option>
+                            @foreach (var city in Model.Cities)
+                            {
+                                <option value="@city.Id">@city.NameAr</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CityId" class="error-message"></span>
+                    </div>
+
+                    <!-- الحي -->
+                    <div class="form-group">
+                        <label>الحي <span class="req">*</span></label>
+                        <input asp-for="Neighborhood" class="form-control" placeholder="اسم الحي" required />
+                        <span asp-validation-for="Neighborhood" class="error-message"></span>
+                    </div>
+
+                    <!-- الشارع -->
+                    <div class="form-group full">
+                        <label>الشارع</label>
+                        <input asp-for="Address" class="form-control" placeholder="اسم الشارع" />
+                    </div>
+
+                    <!-- الموقع التفصيلي -->
+                    <div class="form-group full">
+                        <label>الموقع التفصيلي <span class="req">*</span></label>
+                        <textarea asp-for="DetailedLocation" class="form-control" placeholder="أدخل موقع العقار بالتفصيل..." required></textarea>
+                        <span asp-validation-for="DetailedLocation" class="error-message"></span>
+                    </div>
+
+                    <!-- المساحة -->
+                    <div class="form-group">
+                        <label>المساحة (م²) <span class="req">*</span></label>
+                        <input asp-for="Area" type="number" class="form-control" placeholder="المساحة" required min="1" />
+                        <span asp-validation-for="Area" class="error-message"></span>
+                    </div>
+
+                    <!-- عدد الغرف -->
+                    <div class="form-group">
+                        <label>عدد الغرف</label>
+                        <input asp-for="Rooms" type="number" class="form-control" placeholder="الغرف" min="0" />
+                    </div>
+
+                    <!-- عدد الحمامات -->
+                    <div class="form-group">
+                        <label>عدد الحمامات</label>
+                        <input asp-for="Bathrooms" type="number" class="form-control" placeholder="الحمامات" min="0" />
+                    </div>
+
+                    <!-- رقم الطابق -->
+                    <div class="form-group">
+                        <label>رقم الطابق</label>
+                        <input asp-for="Floor" type="number" class="form-control" placeholder="رقم الطابق" min="-2" />
+                    </div>
+
+                    <!-- متاح من -->
+                    <div class="form-group">
+                        <label>متاح من تاريخ <span class="req">*</span></label>
+                        <input asp-for="AvailableFrom" type="date" class="form-control" required />
+                        <span asp-validation-for="AvailableFrom" class="error-message"></span>
+                    </div>
+
+                    <!-- رقم الاتصال -->
+                    <div class="form-group">
+                        <label>رقم الاتصال <span class="req">*</span></label>
+                        <input asp-for="AdvertiserPhone" type="tel" class="form-control" placeholder="09XXXXXXXX" required maxlength="10" />
+                        <span asp-validation-for="AdvertiserPhone" class="error-message"></span>
+                    </div>
+
+                    <!-- المرافق -->
+                    <div class="form-group full">
+                        <label>المرافق</label>
+                        <div class="amenities-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:11px;">
+                            @foreach (var feature in Model.Features)
+                            {
+                                <label class="amenity-item" style="display:flex; align-items:center; gap:9px; padding:13px 15px; background:var(--bg-light); border:2px solid var(--border); border-radius:10px; cursor:pointer; font-weight:600; color:var(--dark);">
+                                    <input type="checkbox" name="FeatureIds" value="@feature.Id" @(Model.FeatureIds.Contains(feature.Id) ? "checked" : "") />
+                                    <i class="fa-solid @(feature.IconClass ?? "fa-check")"></i> @feature.NameAr
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- أزرار -->
+                <div class="form-actions">
+                    <div class="btn-group">
+                        <a href="/Properties/MyProperties" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-right"></i> العودة
+                        </a>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-save"></i> حفظ التغييرات
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // التحقق من صحة النموذج
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var required = this.querySelectorAll('[required]');
+            var isValid = true;
+
+            required.forEach(function(field) {
+                if (!field.value || field.value === '') {
+                    field.classList.add('error');
+                    var errorDiv = field.parentElement.querySelector('.error-message');
+                    if (errorDiv) errorDiv.style.display = 'block';
+                    isValid = false;
+                } else {
+                    field.classList.remove('error');
+                    var errorDiv = field.parentElement.querySelector('.error-message');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('⚠️ الرجاء تعبئة جميع الحقول المطلوبة');
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -481,6 +481,12 @@ document.addEventListener("keydown", function (e) {
             }
         }
     }
-});
+});// زر "عقاراتي"
+var myPropsBtn = document.getElementById("myPropertiesLink");
+if (myPropsBtn) {
+    myPropsBtn.addEventListener("click", function (e) {
+        window.location.href = "/Properties/MyProperties";
+    });
+}
 
 console.log("✅ كل شيء جاهز في ملف index.js (متصل بـ Identity)!");
