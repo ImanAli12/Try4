@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RealEstateWebApp.Data;
 using RealEstateWebApp.Models;
-using System.Security.Claims;
 
 namespace RealEstateWebApp.Controllers
 {
@@ -25,7 +24,9 @@ namespace RealEstateWebApp.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        // GET: Properties/Create
+        // ============================================================
+        // CREATE
+        // ============================================================
         public async Task<IActionResult> Create()
         {
             var viewModel = new PropertyViewModel
@@ -41,7 +42,6 @@ namespace RealEstateWebApp.Controllers
             return View(viewModel);
         }
 
-        // POST: Properties/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PropertyViewModel viewModel)
@@ -55,12 +55,8 @@ namespace RealEstateWebApp.Controllers
             }
 
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            if (user == null) return Unauthorized();
 
-            // العثور على المدينة المحددة
             var city = await _context.Cities.FindAsync(viewModel.CityId);
             if (city == null)
             {
@@ -71,7 +67,6 @@ namespace RealEstateWebApp.Controllers
                 return View(viewModel);
             }
 
-            // إنشاء العقار
             var property = new Property
             {
                 Code = GeneratePropertyCode(),
@@ -100,65 +95,45 @@ namespace RealEstateWebApp.Controllers
                 AdvertiserPhone = viewModel.AdvertiserPhone
             };
 
-            // معالجة الصورة الأساسية
             if (viewModel.MainImage != null && viewModel.MainImage.Length > 0)
             {
-                var mainImagePath = await SaveImageAsync(viewModel.MainImage, "aqar");
-                property.Images.Add(new PropertyImage
-                {
-                    ImageUrl = "/image/aqar/" + mainImagePath,
-                    IsMain = true,
-                    Order = 0
-                });
+                var path = await SaveImageAsync(viewModel.MainImage, "aqar");
+                property.Images.Add(new PropertyImage { ImageUrl = "/image/aqar/" + path, IsMain = true, Order = 0 });
             }
 
-            // معالجة الصور الإضافية
             if (viewModel.AdditionalImages != null)
             {
                 int order = 1;
-                foreach (var image in viewModel.AdditionalImages)
+                foreach (var img in viewModel.AdditionalImages)
                 {
-                    if (image.Length > 0)
+                    if (img.Length > 0)
                     {
-                        var imagePath = await SaveImageAsync(image, "aqar");
-                        property.Images.Add(new PropertyImage
-                        {
-                            ImageUrl = "/image/aqar/" + imagePath,
-                            IsMain = false,
-                            Order = order++
-                        });
+                        var path = await SaveImageAsync(img, "aqar");
+                        property.Images.Add(new PropertyImage { ImageUrl = "/image/aqar/" + path, IsMain = false, Order = order++ });
                     }
                 }
             }
 
-            // إضافة المرافق
             if (viewModel.FeatureIds != null && viewModel.FeatureIds.Any())
             {
-                var features = await _context.Features
-                    .Where(f => viewModel.FeatureIds.Contains(f.Id))
-                    .ToListAsync();
-                foreach (var feature in features)
-                {
-                    property.Features.Add(feature);
-                }
+                var features = await _context.Features.Where(f => viewModel.FeatureIds.Contains(f.Id)).ToListAsync();
+                foreach (var f in features) property.Features.Add(f);
             }
 
             _context.Properties.Add(property);
             await _context.SaveChangesAsync();
 
-
             TempData["Success"] = "✅ تم نشر العقار بنجاح!";
             return RedirectToAction("MyProperties", "Properties");
         }
 
-        // GET: Properties/MyProperties
+        // ============================================================
+        // MY PROPERTIES (عقاراتي)
+        // ============================================================
         public async Task<IActionResult> MyProperties()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            if (user == null) return Unauthorized();
 
             var properties = await _context.Properties
                 .Include(p => p.Images)
@@ -171,7 +146,9 @@ namespace RealEstateWebApp.Controllers
             return View(properties);
         }
 
-        // GET: Properties/Edit/5
+        // ============================================================
+        // EDIT (GET)
+        // ============================================================
         public async Task<IActionResult> Edit(int id)
         {
             var property = await _context.Properties
@@ -180,27 +157,16 @@ namespace RealEstateWebApp.Controllers
                 .Include(p => p.City)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (property == null)
-            {
-                return NotFound();
-            }
+            if (property == null) return NotFound();
 
-            // التحقق من أن المعلن هو صاحب العقار
             var user = await _userManager.GetUserAsync(User);
-            if (property.AdvertiserId != user?.Id)
-            {
-                return Forbid();
-            }
+            if (property.AdvertiserId != user?.Id) return Forbid();
 
-            // استخراج رقم المحضر من الكود
             int propertyNumber = 0;
             if (!string.IsNullOrEmpty(property.Code))
             {
                 var parts = property.Code.Split('-');
-                if (parts.Length >= 3 && int.TryParse(parts[2], out int num))
-                {
-                    propertyNumber = num;
-                }
+                if (parts.Length >= 3 && int.TryParse(parts[2], out int num)) propertyNumber = num;
             }
 
             var viewModel = new PropertyViewModel
@@ -236,47 +202,64 @@ namespace RealEstateWebApp.Controllers
             return View(viewModel);
         }
 
+        // ============================================================
+        // EDIT (POST) - حفظ التعديلات
+        // ============================================================
         // POST: Properties/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, PropertyViewModel viewModel)
         {
+            // ============================================================
+            // ✅ التحقق 1: المستخدم مسجل دخول؟
+            // ============================================================
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                TempData["Error"] = "⚠️ يجب تسجيل الدخول أولاً لتعديل العقار!";
+                return RedirectToAction("Login", "Account");
+            }
+
+            // ============================================================
+            // ✅ التحقق 2: صحة النموذج (جميع الحقول مملوءة؟)
+            // ============================================================
             if (!ModelState.IsValid)
             {
+                // عرض رسالة عامة
+                TempData["Error"] = "⚠️ الرجاء تعبئة جميع الحقول المطلوبة بشكل صحيح!";
+
+                // إعادة تحميل البيانات للـ View
                 viewModel.PropertyTypes = await _context.PropertyTypes.ToListAsync();
                 viewModel.Cities = await _context.Cities.ToListAsync();
                 viewModel.Features = await _context.Features.ToListAsync();
                 return View(viewModel);
             }
 
+            // ============================================================
+            // ✅ جلب العقار من قاعدة البيانات
+            // ============================================================
             var property = await _context.Properties
-                .Include(p => p.Images)
                 .Include(p => p.Features)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (property == null)
             {
-                return NotFound();
+                TempData["Error"] = "⚠️ العقار غير موجود!";
+                return RedirectToAction("MyProperties", "Properties");
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            if (property.AdvertiserId != user?.Id)
+            // ============================================================
+            // ✅ التحقق 3: المستخدم هو صاحب العقار؟
+            // ============================================================
+            if (property.AdvertiserId != user.Id)
             {
-                return Forbid();
+                TempData["Error"] = "⚠️ لا يمكنك تعديل هذا العقار لأنه ليس ملكك!";
+                return RedirectToAction("MyProperties", "Properties");
             }
 
-            // العثور على المدينة المحددة
-            var city = await _context.Cities.FindAsync(viewModel.CityId);
-            if (city == null)
-            {
-                ModelState.AddModelError("CityId", "المدينة المحددة غير موجودة");
-                viewModel.PropertyTypes = await _context.PropertyTypes.ToListAsync();
-                viewModel.Cities = await _context.Cities.ToListAsync();
-                viewModel.Features = await _context.Features.ToListAsync();
-                return View(viewModel);
-            }
-
-            // تحديث البيانات
+            // ============================================================
+            // ✅ تحديث البيانات
+            // ============================================================
             property.Title = viewModel.Title;
             property.Price = viewModel.Price;
             property.PriceCurrency = viewModel.PriceCurrency;
@@ -286,65 +269,19 @@ namespace RealEstateWebApp.Controllers
             property.Floor = viewModel.Floor;
             property.Status = viewModel.Status;
             property.CityId = viewModel.CityId;
-            property.City = city;
             property.Neighborhood = viewModel.Neighborhood ?? string.Empty;
             property.Address = viewModel.Address;
             property.Description = viewModel.Description;
-            property.Latitude = viewModel.Latitude;
-            property.Longitude = viewModel.Longitude;
             property.PropertyTypeId = viewModel.PropertyTypeId;
             property.DetailedLocation = viewModel.DetailedLocation;
             property.AvailableFrom = viewModel.AvailableFrom;
             property.AdvertiserPhone = viewModel.AdvertiserPhone;
+            property.Latitude = viewModel.Latitude;
+            property.Longitude = viewModel.Longitude;
 
-            // معالجة الصورة الأساسية الجديدة
-            if (viewModel.MainImage != null && viewModel.MainImage.Length > 0)
-            {
-                // حذف الصورة القديمة
-                var oldMain = property.Images.FirstOrDefault(i => i.IsMain);
-                if (oldMain != null)
-                {
-                    DeleteImage(oldMain.ImageUrl);
-                    property.Images.Remove(oldMain);
-                }
-
-                var mainImagePath = await SaveImageAsync(viewModel.MainImage, "aqar");
-                property.Images.Add(new PropertyImage
-                {
-                    ImageUrl = "/image/aqar/" + mainImagePath,
-                    IsMain = true,
-                    Order = 0
-                });
-            }
-
-            // معالجة الصور الإضافية الجديدة
-            if (viewModel.AdditionalImages != null && viewModel.AdditionalImages.Any())
-            {
-                // حذف الصور الإضافية القديمة
-                var oldImages = property.Images.Where(i => !i.IsMain).ToList();
-                foreach (var oldImg in oldImages)
-                {
-                    DeleteImage(oldImg.ImageUrl);
-                    property.Images.Remove(oldImg);
-                }
-
-                int order = 1;
-                foreach (var image in viewModel.AdditionalImages)
-                {
-                    if (image.Length > 0)
-                    {
-                        var imagePath = await SaveImageAsync(image, "aqar");
-                        property.Images.Add(new PropertyImage
-                        {
-                            ImageUrl = "/image/aqar/" + imagePath,
-                            IsMain = false,
-                            Order = order++
-                        });
-                    }
-                }
-            }
-
-            // تحديث المرافق
+            // ============================================================
+            // ✅ تحديث المرافق
+            // ============================================================
             property.Features.Clear();
             if (viewModel.FeatureIds != null && viewModel.FeatureIds.Any())
             {
@@ -357,12 +294,17 @@ namespace RealEstateWebApp.Controllers
                 }
             }
 
+            // ============================================================
+            // ✅ حفظ التغييرات
+            // ============================================================
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "✅ تم تحديث العقار بنجاح!";
             return RedirectToAction("MyProperties", "Properties");
         }
-        // GET: Properties/Details/5
+        // ============================================================
+        // DETAILS (تفاصيل العقار)
+        // ============================================================
         public async Task<IActionResult> Details(int id)
         {
             var property = await _context.Properties
@@ -373,21 +315,17 @@ namespace RealEstateWebApp.Controllers
                 .Include(p => p.Advertiser)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (property == null)
-            {
-                return NotFound();
-            }
+            if (property == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
-            if (property.AdvertiserId != user?.Id)
-            {
-                return Forbid();
-            }
+            if (property.AdvertiserId != user?.Id) return Forbid();
 
             return View(property);
         }
 
-        // POST: Properties/Delete/5
+        // ============================================================
+        // DELETE
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -396,22 +334,12 @@ namespace RealEstateWebApp.Controllers
                 .Include(p => p.Images)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (property == null)
-            {
-                return NotFound();
-            }
+            if (property == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
-            if (property.AdvertiserId != user?.Id)
-            {
-                return Forbid();
-            }
+            if (property.AdvertiserId != user?.Id) return Forbid();
 
-            // حذف الصور من المجلد
-            foreach (var image in property.Images)
-            {
-                DeleteImage(image.ImageUrl);
-            }
+            foreach (var img in property.Images) DeleteImage(img.ImageUrl);
 
             _context.Properties.Remove(property);
             await _context.SaveChangesAsync();
@@ -419,27 +347,9 @@ namespace RealEstateWebApp.Controllers
             return Json(new { success = true, message = "تم حذف العقار بنجاح" });
         }
 
-        // GET: Properties/GetCities
-        [HttpGet]
-        public async Task<IActionResult> GetCities()
-        {
-            var cities = await _context.Cities
-                .Select(c => new { c.Id, c.NameAr })
-                .ToListAsync();
-            return Json(cities);
-        }
-
-        // GET: Properties/GetPropertyTypes
-        [HttpGet]
-        public async Task<IActionResult> GetPropertyTypes()
-        {
-            var types = await _context.PropertyTypes
-                .Select(t => new { t.Id, t.NameAr })
-                .ToListAsync();
-            return Json(types);
-        }
-
-        // Helper Methods
+        // ============================================================
+        // HELPER METHODS
+        // ============================================================
         private async Task<string> SaveImageAsync(IFormFile file, string folder)
         {
             string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "image", folder);
@@ -471,14 +381,9 @@ namespace RealEstateWebApp.Controllers
 
         private string GeneratePropertyCode()
         {
-            var lastProperty = _context.Properties
-                .OrderByDescending(p => p.Id)
-                .FirstOrDefault();
-
+            var lastProperty = _context.Properties.OrderByDescending(p => p.Id).FirstOrDefault();
             int nextNumber = (lastProperty?.Id ?? 0) + 1;
             return $"PROP-{DateTime.Now.Year}-{nextNumber:D6}";
         }
-       
     }
-
-    }
+}

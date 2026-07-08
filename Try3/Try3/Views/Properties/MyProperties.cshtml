@@ -407,38 +407,167 @@
 
             .nav-links {
                 padding: 0;
-                gap: 15px;
+                gap: 10px;
                 flex-wrap: wrap;
             }
 
                 .nav-links a {
-                    font-size: 0.8rem;
+                    font-size: 0.7rem;
                 }
 
             .container {
-                padding: 0.8rem;
+                padding: 0.5rem;
             }
 
-            .needs-table th,
-            .needs-table td {
-                padding: 8px 4px;
-                font-size: 0.65rem;
+            .card {
+                padding: 12px;
+                margin-top: 20px;
+                margin-bottom: 30px;
             }
+            /* ====== تنسيق الجدول في الشاشات الصغيرة ====== */
+            .table-wrap {
+                overflow-x: auto;
+            }
+
+            .needs-table {
+                min-width: 600px;
+                font-size: 0.6rem;
+                table-layout: fixed;
+            }
+
+                .needs-table th,
+                .needs-table td {
+                    padding: 6px 3px;
+                    font-size: 0.55rem;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                    /* تحديد عرض الأعمدة في الشاشات الصغيرة */
+                    .needs-table th:nth-child(1) {
+                        width: 8%;
+                    }
+                    /* الصورة */
+                    .needs-table th:nth-child(2) {
+                        width: 8%;
+                    }
+                    /* رقم المحضر */
+                    .needs-table th:nth-child(3) {
+                        width: 10%;
+                    }
+                    /* تاريخ النشر */
+                    .needs-table th:nth-child(4) {
+                        width: 10%;
+                    }
+                    /* نوع العقار */
+                    .needs-table th:nth-child(5) {
+                        width: 12%;
+                    }
+                    /* السعر */
+                    .needs-table th:nth-child(6) {
+                        width: 8%;
+                    }
+                    /* طبيعة العقار */
+                    .needs-table th:nth-child(7) {
+                        width: 10%;
+                    }
+                    /* الحالة */
+                    .needs-table th:nth-child(8) {
+                        width: 12%;
+                    }
+                    /* التفاصيل */
+                    .needs-table th:nth-child(9) {
+                        width: 22%;
+                    }
+            /* الإجراءات */
 
             .prop-thumb {
-                width: 40px;
-                height: 40px;
+                width: 30px;
+                height: 30px;
             }
 
             .btn-icon-sm {
-                width: 28px;
-                height: 28px;
-                font-size: 0.7rem;
+                width: 22px;
+                height: 22px;
+                font-size: 0.5rem;
             }
 
             .btn-more {
-                padding: 4px 10px;
-                font-size: 0.6rem;
+                padding: 2px 6px;
+                font-size: 0.5rem;
+                border-width: 1px;
+            }
+
+            .badge-sale,
+            .badge-rent,
+            .status-published,
+            .status-pending,
+            .status-rejected {
+                padding: 2px 4px;
+                font-size: 0.45rem;
+            }
+
+            .card-header {
+                font-size: 0.9rem;
+                padding-bottom: 8px;
+                margin-bottom: 12px;
+            }
+
+                .card-header .icon-circle {
+                    width: 30px;
+                    height: 30px;
+                    font-size: 0.9rem;
+                }
+
+            .actions-cell {
+                gap: 3px;
+            }
+
+            .success-msg {
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+        }
+
+        @@media screen and (max-width: 480px) {
+            .needs-table {
+                min-width: 450px;
+                font-size: 0.5rem;
+            }
+
+                .needs-table th,
+                .needs-table td {
+                    padding: 4px 2px;
+                    font-size: 0.45rem;
+                }
+
+                    .needs-table th:nth-child(7) {
+                        width: 8%;
+                    }
+                    /* الحالة */
+                    .needs-table th:nth-child(8) {
+                        width: 14%;
+                    }
+                    /* التفاصيل */
+                    .needs-table th:nth-child(9) {
+                        width: 26%;
+                    }
+            /* الإجراءات */
+
+            .btn-more {
+                padding: 2px 4px;
+                font-size: 0.4rem;
+            }
+
+            .btn-icon-sm {
+                width: 18px;
+                height: 18px;
+                font-size: 0.4rem;
+            }
+
+            .prop-thumb {
+                width: 25px;
+                height: 25px;
             }
         }
 
