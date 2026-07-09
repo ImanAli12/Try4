@@ -26,69 +26,46 @@ namespace RealEstateWebApp.Controllers
         }
 
         // ===== تنفيذ البحث (AJAX) =====
+        // GET: Properties/Details/{code}
         [HttpGet]
-        public async Task<IActionResult> Search(
-            int? propertyTypeId,
-            string? status,
-            int? cityId,
-            string? neighborhood,  // ✅ تغيير من int? إلى string?
-            decimal? minPrice,
-            decimal? maxPrice,
-            string? currency,
-            decimal? minArea,
-            decimal? maxArea,
-            byte? rooms,
-            byte? bathrooms,
-            short? floor,
-            short? totalFloors)
+        public async Task<IActionResult> Details(string code)
         {
-            var query = _context.Properties
+            if (string.IsNullOrEmpty(code))
+                return NotFound();
+
+            var property = await _context.Properties
                 .Include(p => p.City)
                 .Include(p => p.PropertyType)
                 .Include(p => p.Images)
-                .Where(p => p.IsActive == true && p.Status == "للبيع");
+                .FirstOrDefaultAsync(p => p.Code == code);
 
-            // تطبيق الفلاتر
-            if (propertyTypeId.HasValue && propertyTypeId.Value > 0)
-                query = query.Where(p => p.PropertyTypeId == propertyTypeId.Value);
+            if (property == null)
+                return NotFound();
 
-            if (cityId.HasValue && cityId.Value > 0)
-                query = query.Where(p => p.CityId == cityId.Value);
-
-            // ✅ البحث عن الحي كنص
-            if (!string.IsNullOrWhiteSpace(neighborhood))
-                query = query.Where(p => p.Neighborhood != null && p.Neighborhood.Contains(neighborhood));
-
-            if (minPrice.HasValue)
-                query = query.Where(p => p.Price >= minPrice.Value);
-
-            if (maxPrice.HasValue)
-                query = query.Where(p => p.Price <= maxPrice.Value);
-
-            if (!string.IsNullOrWhiteSpace(currency))
-                query = query.Where(p => p.PriceCurrency == currency);
-
-            if (minArea.HasValue)
-                query = query.Where(p => p.Area >= minArea.Value);
-
-            if (maxArea.HasValue)
-                query = query.Where(p => p.Area <= maxArea.Value);
-
-            if (rooms.HasValue && rooms.Value > 0)
-                query = query.Where(p => p.Rooms == rooms.Value);
-
-            if (bathrooms.HasValue && bathrooms.Value > 0)
-                query = query.Where(p => p.Bathrooms == bathrooms.Value);
-
-            if (floor.HasValue && floor.Value >= 0)
-                query = query.Where(p => p.Floor == floor.Value);
-
-            // ترتيب حسب الأحدث
-            var results = await query
-                .OrderByDescending(p => p.CreatedAt)
+            // ✅ هذا هو الاستعلام الذي كان يعمل عندما اشتغلت الخوارزمية
+            var similarCodes = await _context.SimilarProperties
+                .Where(sp => sp.PropertyCode == code)
+                .OrderBy(sp => sp.RankOrder)
+                .Select(sp => sp.SimilarPropertyCode)
+                .Take(10)
                 .ToListAsync();
 
-            return PartialView("_PropertyResults", results);
+            var similarProperties = await _context.Properties
+                .Include(p => p.City)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Images)
+                .Where(p => similarCodes.Contains(p.Code))
+                .ToListAsync();
+
+            var orderedSimilar = similarProperties
+                .Select(p => new { Property = p, Index = similarCodes.IndexOf(p.Code) })
+                .Where(x => x.Index >= 0)
+                .OrderBy(x => x.Index)
+                .Select(x => x.Property)
+                .ToList();
+
+            ViewBag.SimilarProperties = orderedSimilar;
+            return View(property);
         }
     }
 }

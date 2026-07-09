@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RealEstateWebApp.Data;
 
@@ -11,9 +12,11 @@ using RealEstateWebApp.Data;
 namespace Try3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708124601_Py")]
+    partial class Py
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -503,7 +506,7 @@ namespace Try3.Migrations
                     b.ToTable("PropertyTypes");
                 });
 
-            modelBuilder.Entity("RealEstateWebApp.Models.SimilarProperty", b =>
+            modelBuilder.Entity("Try3.Models.SimilarProperty", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -513,21 +516,19 @@ namespace Try3.Migrations
 
                     b.Property<string>("PropertyCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("property_code");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RankOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("rank_order");
+                        .HasColumnType("int");
 
                     b.Property<string>("SimilarPropertyCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("similar_property_code");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<double>("SimilarityScore")
-                        .HasColumnType("float")
-                        .HasColumnName("similarity_score");
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 

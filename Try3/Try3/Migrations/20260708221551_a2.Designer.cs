@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RealEstateWebApp.Data;
 
@@ -11,9 +12,11 @@ using RealEstateWebApp.Data;
 namespace Try3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708221551_a2")]
+    partial class a2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -501,37 +504,6 @@ namespace Try3.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PropertyTypes");
-                });
-
-            modelBuilder.Entity("RealEstateWebApp.Models.SimilarProperty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("PropertyCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("property_code");
-
-                    b.Property<int>("RankOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("rank_order");
-
-                    b.Property<string>("SimilarPropertyCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("similar_property_code");
-
-                    b.Property<double>("SimilarityScore")
-                        .HasColumnType("float")
-                        .HasColumnName("similarity_score");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SimilarProperties");
                 });
 
             modelBuilder.Entity("FeatureProperty", b =>
