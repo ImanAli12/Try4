@@ -45,7 +45,7 @@ public class Property
 
     public string? Description { get; set; }
 
-    // ====== гАнугфу гАлоМои гАЦжгщи ======
+    // ====== О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ======
     public string? DetailedLocation { get; set; }
     public DateTime? AvailableFrom { get; set; }
     public string? AdvertiserPhone { get; set; }

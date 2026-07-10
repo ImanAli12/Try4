@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace RealEstateWebApp.Controllers
 {
-   // [Authorize]
+    // [Authorize]
     public class PropertiesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,7 +25,7 @@ namespace RealEstateWebApp.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-    [HttpGet]
+        [HttpGet]
         [Route("Properties/Create")]
         public async Task<IActionResult> Create()
         {
@@ -42,7 +42,6 @@ namespace RealEstateWebApp.Controllers
             return View(viewModel);
         }
 
-        // POST: Properties/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PropertyViewModel viewModel)
@@ -61,7 +60,6 @@ namespace RealEstateWebApp.Controllers
                 return Unauthorized();
             }
 
-            // العثور على المدينة المحددة
             var city = await _context.Cities.FindAsync(viewModel.CityId);
             if (city == null)
             {
@@ -72,7 +70,6 @@ namespace RealEstateWebApp.Controllers
                 return View(viewModel);
             }
 
-            // إنشاء العقار
             var property = new Property
             {
                 Code = GeneratePropertyCode(),
@@ -101,7 +98,6 @@ namespace RealEstateWebApp.Controllers
                 AdvertiserPhone = viewModel.AdvertiserPhone
             };
 
-            // معالجة الصورة الأساسية
             if (viewModel.MainImage != null && viewModel.MainImage.Length > 0)
             {
                 var mainImagePath = await SaveImageAsync(viewModel.MainImage, "aqar");
@@ -113,7 +109,6 @@ namespace RealEstateWebApp.Controllers
                 });
             }
 
-            // معالجة الصور الإضافية
             if (viewModel.AdditionalImages != null)
             {
                 int order = 1;
@@ -132,7 +127,6 @@ namespace RealEstateWebApp.Controllers
                 }
             }
 
-            // إضافة المرافق
             if (viewModel.FeatureIds != null && viewModel.FeatureIds.Any())
             {
                 var features = await _context.Features
@@ -147,12 +141,10 @@ namespace RealEstateWebApp.Controllers
             _context.Properties.Add(property);
             await _context.SaveChangesAsync();
 
-            
             TempData["Success"] = "✅ تم نشر العقار بنجاح!";
             return RedirectToAction("MyProperties", "Dashboard");
         }
 
-        // GET: Properties/MyProperties
         public async Task<IActionResult> MyProperties()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -172,7 +164,6 @@ namespace RealEstateWebApp.Controllers
             return View(properties);
         }
 
-        // GET: Properties/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var property = await _context.Properties
@@ -186,14 +177,12 @@ namespace RealEstateWebApp.Controllers
                 return NotFound();
             }
 
-            // التحقق من أن المعلن هو صاحب العقار
             var user = await _userManager.GetUserAsync(User);
             if (property.AdvertiserId != user?.Id)
             {
                 return Forbid();
             }
 
-            // استخراج رقم المحضر من الكود
             int propertyNumber = 0;
             if (!string.IsNullOrEmpty(property.Code))
             {
@@ -237,7 +226,6 @@ namespace RealEstateWebApp.Controllers
             return View(viewModel);
         }
 
-        // POST: Properties/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, PropertyViewModel viewModel)
@@ -266,7 +254,6 @@ namespace RealEstateWebApp.Controllers
                 return Forbid();
             }
 
-            // العثور على المدينة المحددة
             var city = await _context.Cities.FindAsync(viewModel.CityId);
             if (city == null)
             {
@@ -277,7 +264,6 @@ namespace RealEstateWebApp.Controllers
                 return View(viewModel);
             }
 
-            // تحديث البيانات
             property.Title = viewModel.Title;
             property.Price = viewModel.Price;
             property.PriceCurrency = viewModel.PriceCurrency;
@@ -298,10 +284,8 @@ namespace RealEstateWebApp.Controllers
             property.AvailableFrom = viewModel.AvailableFrom;
             property.AdvertiserPhone = viewModel.AdvertiserPhone;
 
-            // معالجة الصورة الأساسية الجديدة
             if (viewModel.MainImage != null && viewModel.MainImage.Length > 0)
             {
-                // حذف الصورة القديمة
                 var oldMain = property.Images.FirstOrDefault(i => i.IsMain);
                 if (oldMain != null)
                 {
@@ -318,10 +302,8 @@ namespace RealEstateWebApp.Controllers
                 });
             }
 
-            // معالجة الصور الإضافية الجديدة
             if (viewModel.AdditionalImages != null && viewModel.AdditionalImages.Any())
             {
-                // حذف الصور الإضافية القديمة
                 var oldImages = property.Images.Where(i => !i.IsMain).ToList();
                 foreach (var oldImg in oldImages)
                 {
@@ -345,7 +327,6 @@ namespace RealEstateWebApp.Controllers
                 }
             }
 
-            // تحديث المرافق
             property.Features.Clear();
             if (viewModel.FeatureIds != null && viewModel.FeatureIds.Any())
             {
@@ -364,7 +345,6 @@ namespace RealEstateWebApp.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
-        // POST: Properties/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -384,7 +364,6 @@ namespace RealEstateWebApp.Controllers
                 return Forbid();
             }
 
-            // حذف الصور من المجلد
             foreach (var image in property.Images)
             {
                 DeleteImage(image.ImageUrl);
@@ -396,7 +375,6 @@ namespace RealEstateWebApp.Controllers
             return Json(new { success = true, message = "تم حذف العقار بنجاح" });
         }
 
-        // GET: Properties/GetCities
         [HttpGet]
         public async Task<IActionResult> GetCities()
         {
@@ -406,7 +384,6 @@ namespace RealEstateWebApp.Controllers
             return Json(cities);
         }
 
-        // GET: Properties/GetPropertyTypes
         [HttpGet]
         public async Task<IActionResult> GetPropertyTypes()
         {
@@ -416,7 +393,6 @@ namespace RealEstateWebApp.Controllers
             return Json(types);
         }
 
-        // Helper Methods
         private async Task<string> SaveImageAsync(IFormFile file, string folder)
         {
             string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "image", folder);
@@ -454,6 +430,54 @@ namespace RealEstateWebApp.Controllers
 
             int nextNumber = (lastProperty?.Id ?? 0) + 1;
             return $"PROP-{DateTime.Now.Year}-{nextNumber:D6}";
+        }
+
+        // ==========================================================
+        // ✅ دالة Details المكتملة (مع جلب العقارات المشابهة)
+        // ==========================================================
+        [HttpGet]
+        public async Task<IActionResult> Details(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+                return NotFound();
+
+            var property = await _context.Properties
+                .Include(p => p.City)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Code == code);
+
+            if (property == null)
+                return NotFound();
+
+            // ==========================================================
+            // ✅ جلب العقارات المشابهة من جدول SimilarProperties
+            // ==========================================================
+            var similarCodes = await _context.SimilarProperties
+                .Where(sp => sp.PropertyCode == code)
+                .OrderBy(sp => sp.RankOrder)
+                .Select(sp => sp.SimilarPropertyCode)
+                .Take(10)
+                .ToListAsync();
+
+            var similarProperties = await _context.Properties
+                .Include(p => p.City)
+                .Include(p => p.PropertyType)
+                .Include(p => p.Images)
+                .Where(p => similarCodes.Contains(p.Code))
+                .ToListAsync();
+
+            // ✅ ترتيب النتائج حسب RankOrder
+            var orderedSimilar = similarProperties
+                .Select(p => new { Property = p, Index = similarCodes.IndexOf(p.Code) })
+                .Where(x => x.Index >= 0)
+                .OrderBy(x => x.Index)
+                .Select(x => x.Property)
+                .ToList();
+
+            ViewBag.SimilarProperties = orderedSimilar;
+
+            return View(property);
         }
     }
 }

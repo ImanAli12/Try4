@@ -1,0 +1,705 @@
+﻿@model RealEstateWebApp.Models.Property
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = null;
+    // ✅ الترتيب من الأرخص إلى الأعلى، وعرض أول 10 فقط
+    var similar = (ViewBag.SimilarProperties as List<RealEstateWebApp.Models.Property> ?? new List<RealEstateWebApp.Models.Property>())
+        .OrderBy(p => p.Price)
+        .Take(10)
+        .ToList();
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.Title | SYRELIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        /* ===================== جميع التنسيقات ===================== */
+        :root {
+            --dark: #192e43;
+            --gold: #d4af37;
+            --gray: #51596a;
+            --white: #ffffff;
+            --gold-light: #f4e5c2;
+            --gold-dark: #917005;
+            --border: #e8e4dc;
+            --bg-light: #f8f9fa;
+            --shadow: 0 4px 16px rgba(11, 19, 32, 0.08);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(126deg, rgba(11, 19, 32, 0.92), rgb(11 19 32 / 72%)), url(https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: "Tajawal", sans-serif;
+            color: var(--gold);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* ========== شريط التنقل ========== */
+        .navbar {
+            background: rgba(11, 19, 32, 0.96);
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            justify-content: space-evenly;
+            box-shadow: 0px 15px 30px -10px rgb(23, 22, 70);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .navbar .logo {
+                width: 6%;
+                margin-top: 8px;
+                margin-bottom: 8px;
+                min-width: 50px;
+                flex-shrink: 0;
+            }
+
+            .navbar .nav-links {
+                padding: 0 18rem;
+                display: flex;
+                gap: 70px;
+                list-style: none;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+                .navbar .nav-links a {
+                    color: #f2efea;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 1rem;
+                    transition: 0.3s;
+                    white-space: nowrap;
+                }
+
+                    .navbar .nav-links a:hover {
+                        color: var(--gold);
+                    }
+
+        /* ========== Header ========== */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.25);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+            .page-title i {
+                background: var(--gold);
+                color: var(--dark);
+                padding: 12px;
+                border-radius: 50%;
+                font-size: 1.2rem;
+            }
+
+        .back-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+            .back-link:hover {
+                background: var(--gold);
+                color: var(--dark);
+            }
+
+        /* ========== بطاقة ========== */
+        .card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px 35px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+            color: var(--dark);
+        }
+
+        .card-header {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--bg-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+            .card-header .icon-circle {
+                width: 40px;
+                height: 40px;
+                background: #192e43;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffd754;
+                font-size: 1.1rem;
+                flex-shrink: 0;
+            }
+
+            .card-header .subtitle {
+                font-size: 0.8rem;
+                font-weight: 400;
+                color: var(--gray);
+                margin-right: auto;
+            }
+
+        /* ========== تفاصيل العقار ========== */
+        .property-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @@media (max-width: 768px) {
+            .property-details {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .image-gallery {
+            background: var(--bg-light);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+            .image-gallery img {
+                width: 100%;
+                height: 400px;
+                object-fit: cover;
+            }
+
+        .image-thumbs {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+            .image-thumbs img {
+                width: 80px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 8px;
+                cursor: pointer;
+                border: 2px solid transparent;
+                transition: 0.3s;
+            }
+
+                .image-thumbs img:hover {
+                    border-color: var(--gold);
+                }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+            .info-section h1 {
+                font-size: 1.8rem;
+                color: var(--dark);
+                font-weight: 700;
+            }
+
+        .price-tag {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+            padding: 10px 20px;
+            border-radius: 12px;
+            display: inline-block;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+            .detail-item i {
+                color: var(--gold);
+                width: 20px;
+            }
+
+            .detail-item strong {
+                color: var(--dark);
+            }
+
+        .description-box {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+            .description-box strong {
+                color: var(--dark);
+            }
+
+        .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .feature-badge {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold-dark);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .advertiser-box {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+            .advertiser-box .phone {
+                color: #22c55e;
+                font-size: 1.1rem;
+                font-weight: 700;
+            }
+
+        /* ========== العقارات المشابهة ========== */
+        .similar-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid rgba(212, 175, 55, 0.2);
+        }
+
+            .similar-section h2 {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+                color: var(--dark);
+            }
+
+                .similar-section h2 i {
+                    color: var(--gold);
+                    margin-left: 10px;
+                }
+
+        .similar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .similar-card {
+            background: var(--white);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            box-shadow: var(--shadow);
+        }
+
+            .similar-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15);
+                border-color: var(--gold);
+            }
+
+            .similar-card img {
+                width: 100%;
+                height: 160px;
+                object-fit: cover;
+                background: var(--bg-light);
+            }
+
+            .similar-card .info {
+                padding: 14px;
+            }
+
+                .similar-card .info h4 {
+                    color: var(--dark);
+                    font-size: 0.95rem;
+                    margin-bottom: 4px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .similar-card .info .price {
+                    color: var(--gold);
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                }
+
+                .similar-card .info .location {
+                    color: var(--gray);
+                    font-size: 0.8rem;
+                }
+
+        .empty-similar {
+            text-align: center;
+            color: var(--gray);
+            padding: 30px 0;
+        }
+
+            .empty-similar i {
+                font-size: 2.5rem;
+                color: #ccc;
+                margin-bottom: 10px;
+            }
+
+        /* ========== Responsive ========== */
+        @@media screen and (max-width: 992px) {
+            .navbar .nav-links {
+                padding: 0 2rem;
+                gap: 25px;
+            }
+
+                .navbar .nav-links a {
+                    font-size: 0.85rem;
+                }
+
+            .container {
+                padding: 1.5rem 1.2rem;
+            }
+
+            .card {
+                padding: 25px 28px;
+            }
+
+            .property-details {
+                gap: 20px;
+            }
+        }
+
+        @@media screen and (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+                justify-content: center;
+            }
+
+                .navbar .logo {
+                    width: 50px;
+                }
+
+                .navbar .nav-links {
+                    padding: 0;
+                    gap: 15px;
+                    justify-content: center;
+                }
+
+                    .navbar .nav-links a {
+                        font-size: 0.8rem;
+                    }
+
+            .container {
+                padding: 1rem 0.8rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+                .page-title i {
+                    padding: 10px;
+                    font-size: 1rem;
+                }
+
+            .card {
+                padding: 20px;
+                border-radius: 16px;
+            }
+
+            .card-header {
+                font-size: 1rem;
+            }
+
+                .card-header .icon-circle {
+                    width: 34px;
+                    height: 34px;
+                    font-size: 0.9rem;
+                }
+
+            .info-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .price-tag {
+                font-size: 1.5rem;
+                padding: 8px 16px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                padding: 12px;
+            }
+
+            .similar-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+            }
+
+            .similar-card img {
+                height: 140px;
+            }
+        }
+
+        @@media screen and (max-width: 480px) {
+            .navbar .nav-links {
+                gap: 8px;
+            }
+
+                .navbar .nav-links a {
+                    font-size: 0.7rem;
+                }
+
+            .page-title {
+                font-size: 1.2rem;
+            }
+
+                .page-title i {
+                    padding: 8px;
+                    font-size: 0.9rem;
+                }
+
+            .card {
+                padding: 15px;
+                border-radius: 14px;
+            }
+
+            .image-gallery img {
+                height: 250px;
+            }
+
+            .similar-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .similar-card img {
+                height: 120px;
+            }
+
+            .similar-card .info {
+                padding: 10px;
+            }
+
+                .similar-card .info h4 {
+                    font-size: 0.8rem;
+                }
+
+                .similar-card .info .price {
+                    font-size: 0.9rem;
+                }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== شريط التنقل ===== -->
+    <nav class="navbar">
+        <img class="logo" src="~/image/hero.png" alt="SYRELIS Logo" />
+        <ul class="nav-links">
+            <li><a href="/Home/Index"><span class="link_span">الرئيسية</span></a></li>
+            <li><a href="/Properties/Create" target="_blank"><span class="link_span">أعلن عن عقارك</span></a></li>
+            <li><a href="/Search/Index"><span class="link_span">ابحث عن عقارك</span></a></li>
+            <li><a href="/Account/Index"><span class="link_span">حسابي</span></a></li>
+            <li><a href="/Home/Index#contactSection"><span class="link_span">تواصل معنا</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- ===== رأس الصفحة ===== -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fa-solid fa-building"></i>
+                تفاصيل العقار
+            </h1>
+            <a href="javascript:history.back()" class="back-link">
+                <i class="fa-solid fa-arrow-right"></i> العودة
+            </a>
+        </div>
+
+        <!-- ===== معلومات العقار ===== -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon-circle"><i class="fa-solid fa-info-circle"></i></div>
+                معلومات العقار
+            </div>
+
+            <div class="property-details">
+                <!-- معرض الصور -->
+                <div class="image-gallery">
+                    @{
+                        var mainImg = Model.Images?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/image/default.jpg";
+                        var allImages = Model.Images?.OrderBy(i => i.Order).Select(i => i.ImageUrl).ToList() ?? new List<string>();
+                        if (!allImages.Any()) allImages.Add("/image/default.jpg");
+                    }
+                    <img id="mainDetailImage" src="@mainImg" alt="@Model.Title" />
+                    @if (allImages.Count > 1)
+                    {
+                        <div class="image-thumbs">
+                            @foreach (var img in allImages)
+                            {
+                                <img src="@img" alt="صورة" onclick="document.getElementById('mainDetailImage').src=this.src;" />
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- البيانات -->
+                <div class="info-section">
+                    <h1>@Model.Title</h1>
+                    <div class="price-tag">@Model.Price.ToString("N0") @Model.PriceCurrency</div>
+
+                    <div class="details-grid">
+                        <div class="detail-item"><i class="fa-solid fa-vector-square"></i> <strong>المساحة:</strong> @Model.Area م²</div>
+                        <div class="detail-item"><i class="fa-solid fa-bed"></i> <strong>الغرف:</strong> @Model.Rooms</div>
+                        <div class="detail-item"><i class="fa-solid fa-bath"></i> <strong>الحمامات:</strong> @Model.Bathrooms</div>
+                        <div class="detail-item"><i class="fa-solid fa-layer-group"></i> <strong>الطابق:</strong> @(Model.Floor?.ToString() ?? "غير محدد")</div>
+                        <div class="detail-item"><i class="fa-solid fa-city"></i> <strong>المدينة:</strong> @(Model.City?.NameAr ?? "-")</div>
+                        <div class="detail-item"><i class="fa-solid fa-map-pin"></i> <strong>الحي:</strong> @Model.Neighborhood</div>
+                        <div class="detail-item"><i class="fa-regular fa-calendar"></i> <strong>متاح من:</strong> @(Model.AvailableFrom?.ToString("yyyy/MM/dd") ?? "-")</div>
+                        <div class="detail-item"><i class="fa-regular fa-clock"></i> <strong>تاريخ النشر:</strong> @Model.CreatedAt.ToString("yyyy/MM/dd")</div>
+                    </div>
+
+                    <div class="description-box">
+                        <strong>الوصف:</strong>
+                        <p style="margin-top:6px;">@(string.IsNullOrEmpty(Model.Description) ? "لا يوجد وصف مفصل" : Model.Description)</p>
+                        @if (Model.Features != null && Model.Features.Any())
+                        {
+                            <div class="features-list">
+                                @foreach (var f in Model.Features)
+                                {
+                                    <span class="feature-badge"><i class="fa-solid @(f.IconClass ?? "fa-check")"></i> @f.NameAr</span>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="advertiser-box">
+                        <span><i class="fa-regular fa-user"></i> @(Model.Advertiser?.UserName ?? "معلن")</span>
+                        <span class="phone"><i class="fa-solid fa-phone"></i> @(string.IsNullOrEmpty(Model.AdvertiserPhone) ? "غير متوفر" : Model.AdvertiserPhone)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== العقارات المشابهة (مرتبة من الأرخص إلى الأعلى، وأول 10 فقط) ===== -->
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-header">
+                <div class="icon-circle"><i class="fa-regular fa-copy"></i></div>
+                عقارات مشابهة
+                @if (similar.Any())
+                {
+                    <span class="subtitle">@similar.Count عقار</span>
+                }
+            </div>
+
+            @if (similar.Any())
+            {
+                <div class="similar-grid">
+                    @foreach (var item in similar)
+                    {
+                        var img = item.Images?.FirstOrDefault()?.ImageUrl ?? "/image/default.jpg";
+                        <a href="@Url.Action("Details", "Properties", new { code = item.Code })" class="similar-card">
+                            <img src="@img" alt="@item.Title" />
+                            <div class="info">
+                                <h4>@item.Title</h4>
+                                <div class="price">@item.Price.ToString("N0") @item.PriceCurrency</div>
+                                <div class="location"><i class="fa-solid fa-location-dot"></i> @(item.City?.NameAr ?? "") - @item.Area م²</div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-similar">
+                    <i class="fa-regular fa-building"></i>
+                    <p>لا توجد عقارات مشابهة حالياً</p>
+                </div>
+            }
+        </div>
+    </div>
+
+</body>
+</html>

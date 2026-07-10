@@ -31,10 +31,10 @@ namespace RealEstateWebApp.Controllers
             int? propertyTypeId,
             string? status,
             int? cityId,
-            string? neighborhood,  // ✅ تغيير من int? إلى string?
+            string? neighborhood,
             decimal? minPrice,
             decimal? maxPrice,
-            string? currency,
+           
             decimal? minArea,
             decimal? maxArea,
             byte? rooms,
@@ -42,53 +42,60 @@ namespace RealEstateWebApp.Controllers
             short? floor,
             short? totalFloors)
         {
-            var query = _context.Properties
-                .Include(p => p.City)
-                .Include(p => p.PropertyType)
-                .Include(p => p.Images)
-                .Where(p => p.IsActive == true && p.Status == "للبيع");
+            try
+            {
+                // 1. الاستعلام الأساسي (جميع العقارات النشطة)
+                var query = _context.Properties
+                    .Include(p => p.City)
+                    .Where(p => p.IsActive == true);
 
-            // تطبيق الفلاتر
-            if (propertyTypeId.HasValue && propertyTypeId.Value > 0)
-                query = query.Where(p => p.PropertyTypeId == propertyTypeId.Value);
+                // 2. تطبيق الفلاتر (فقط إذا كان المستخدم قد أدخل قيمة)
+                if (cityId.HasValue && cityId.Value > 0)
+                    query = query.Where(p => p.CityId == cityId.Value);
 
-            if (cityId.HasValue && cityId.Value > 0)
-                query = query.Where(p => p.CityId == cityId.Value);
+                if (propertyTypeId.HasValue && propertyTypeId.Value > 0)
+                    query = query.Where(p => p.PropertyTypeId == propertyTypeId.Value);
 
-            // ✅ البحث عن الحي كنص
-            if (!string.IsNullOrWhiteSpace(neighborhood))
-                query = query.Where(p => p.Neighborhood != null && p.Neighborhood.Contains(neighborhood));
+               
+                // 3. جلب أول 10 نتائج مع الصورة الرئيسية فقط
+                var results = await query
+                    .OrderBy(p => p.Price)
+                    .Take(10)
+                    .Select(p => new Property
+                    {
+                        Id = p.Id,
+                        Code = p.Code,
+                        Title = p.Title,
+                        Price = p.Price,
+                        PriceCurrency = p.PriceCurrency,
+                        Area = p.Area,
+                        Rooms = p.Rooms,
+                        Bathrooms = p.Bathrooms,
+                        Floor = p.Floor,
+                        Status = p.Status,
+                        CityId = p.CityId,
+                        City = p.City != null ? new City { Id = p.City.Id, NameAr = p.City.NameAr } : null,
+                        Neighborhood = p.Neighborhood,
+                        Description = p.Description,
+                        CreatedAt = p.CreatedAt,
+                        IsActive = p.IsActive,
+                      
+                    })
+                    .ToListAsync();
 
-            if (minPrice.HasValue)
-                query = query.Where(p => p.Price >= minPrice.Value);
+                // 4. إذا لم تكن هناك نتائج
+                if (results.Count == 0)
+                {
+                    ViewBag.NoDataMessage = "لم نجد عقارات تطابق معايير البحث. حاول تعديل الفلاتر.";
+                }
 
-            if (maxPrice.HasValue)
-                query = query.Where(p => p.Price <= maxPrice.Value);
-
-            if (!string.IsNullOrWhiteSpace(currency))
-                query = query.Where(p => p.PriceCurrency == currency);
-
-            if (minArea.HasValue)
-                query = query.Where(p => p.Area >= minArea.Value);
-
-            if (maxArea.HasValue)
-                query = query.Where(p => p.Area <= maxArea.Value);
-
-            if (rooms.HasValue && rooms.Value > 0)
-                query = query.Where(p => p.Rooms == rooms.Value);
-
-            if (bathrooms.HasValue && bathrooms.Value > 0)
-                query = query.Where(p => p.Bathrooms == bathrooms.Value);
-
-            if (floor.HasValue && floor.Value >= 0)
-                query = query.Where(p => p.Floor == floor.Value);
-
-            // ترتيب حسب الأحدث
-            var results = await query
-                .OrderByDescending(p => p.CreatedAt)
-                .ToListAsync();
-
-            return PartialView("_PropertyResults", results);
+                return PartialView("_PropertyResults", results);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.NoDataMessage = "حدث خطأ: " + ex.Message;
+                return PartialView("_PropertyResults", new List<Property>());
+            }
         }
     }
 }
