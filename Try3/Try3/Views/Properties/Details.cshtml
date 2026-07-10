@@ -2,7 +2,11 @@
 @{
     ViewData["Title"] = Model.Title;
     Layout = null;
-    var similar = ViewBag.SimilarProperties as List<RealEstateWebApp.Models.Property> ?? new List<RealEstateWebApp.Models.Property>();
+    // ✅ الترتيب من الأرخص إلى الأعلى، وعرض أول 10 فقط
+    var similar = (ViewBag.SimilarProperties as List<RealEstateWebApp.Models.Property> ?? new List<RealEstateWebApp.Models.Property>())
+        .OrderBy(p => p.Price)
+        .Take(10)
+        .ToList();
 }
 
 <!DOCTYPE html>
@@ -570,7 +574,7 @@
 </head>
 <body>
 
-    <!-- ===== شريط التنقل (مطابق للصفحة الرئيسية) ===== -->
+    <!-- ===== شريط التنقل ===== -->
     <nav class="navbar">
         <img class="logo" src="~/image/hero.png" alt="SYRELIS Logo" />
         <ul class="nav-links">
@@ -583,7 +587,7 @@
     </nav>
 
     <div class="container">
-        <!-- ===== رأس الصفحة مع زر العودة ===== -->
+        <!-- ===== رأس الصفحة ===== -->
         <div class="page-header">
             <h1 class="page-title">
                 <i class="fa-solid fa-building"></i>
@@ -659,7 +663,7 @@
             </div>
         </div>
 
-        <!-- ===== العقارات المشابهة (من الخوارزمية) ===== -->
+        <!-- ===== العقارات المشابهة (مرتبة من الأرخص إلى الأعلى، وأول 10 فقط) ===== -->
         <div class="card" style="margin-top: 20px;">
             <div class="card-header">
                 <div class="icon-circle"><i class="fa-regular fa-copy"></i></div>

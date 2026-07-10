@@ -26,46 +26,76 @@ namespace RealEstateWebApp.Controllers
         }
 
         // ===== تنفيذ البحث (AJAX) =====
-        // GET: Properties/Details/{code}
         [HttpGet]
-        public async Task<IActionResult> Details(string code)
+        public async Task<IActionResult> Search(
+            int? propertyTypeId,
+            string? status,
+            int? cityId,
+            string? neighborhood,
+            decimal? minPrice,
+            decimal? maxPrice,
+           
+            decimal? minArea,
+            decimal? maxArea,
+            byte? rooms,
+            byte? bathrooms,
+            short? floor,
+            short? totalFloors)
         {
-            if (string.IsNullOrEmpty(code))
-                return NotFound();
+            try
+            {
+                // 1. الاستعلام الأساسي (جميع العقارات النشطة)
+                var query = _context.Properties
+                    .Include(p => p.City)
+                    .Where(p => p.IsActive == true);
 
-            var property = await _context.Properties
-                .Include(p => p.City)
-                .Include(p => p.PropertyType)
-                .Include(p => p.Images)
-                .FirstOrDefaultAsync(p => p.Code == code);
+                // 2. تطبيق الفلاتر (فقط إذا كان المستخدم قد أدخل قيمة)
+                if (cityId.HasValue && cityId.Value > 0)
+                    query = query.Where(p => p.CityId == cityId.Value);
 
-            if (property == null)
-                return NotFound();
+                if (propertyTypeId.HasValue && propertyTypeId.Value > 0)
+                    query = query.Where(p => p.PropertyTypeId == propertyTypeId.Value);
 
-            // ✅ هذا هو الاستعلام الذي كان يعمل عندما اشتغلت الخوارزمية
-            var similarCodes = await _context.SimilarProperties
-                .Where(sp => sp.PropertyCode == code)
-                .OrderBy(sp => sp.RankOrder)
-                .Select(sp => sp.SimilarPropertyCode)
-                .Take(10)
-                .ToListAsync();
+               
+                // 3. جلب أول 10 نتائج مع الصورة الرئيسية فقط
+                var results = await query
+                    .OrderBy(p => p.Price)
+                    .Take(10)
+                    .Select(p => new Property
+                    {
+                        Id = p.Id,
+                        Code = p.Code,
+                        Title = p.Title,
+                        Price = p.Price,
+                        PriceCurrency = p.PriceCurrency,
+                        Area = p.Area,
+                        Rooms = p.Rooms,
+                        Bathrooms = p.Bathrooms,
+                        Floor = p.Floor,
+                        Status = p.Status,
+                        CityId = p.CityId,
+                        City = p.City != null ? new City { Id = p.City.Id, NameAr = p.City.NameAr } : null,
+                        Neighborhood = p.Neighborhood,
+                        Description = p.Description,
+                        CreatedAt = p.CreatedAt,
+                        IsActive = p.IsActive,
+                      
+                    })
+                    .ToListAsync();
 
-            var similarProperties = await _context.Properties
-                .Include(p => p.City)
-                .Include(p => p.PropertyType)
-                .Include(p => p.Images)
-                .Where(p => similarCodes.Contains(p.Code))
-                .ToListAsync();
+                // 4. إذا لم تكن هناك نتائج
+                if (results.Count == 0)
+                {
+                    ViewBag.NoDataMessage = "لم نجد عقارات تطابق معايير البحث. حاول تعديل الفلاتر.";
+                }
 
-            var orderedSimilar = similarProperties
-                .Select(p => new { Property = p, Index = similarCodes.IndexOf(p.Code) })
-                .Where(x => x.Index >= 0)
-                .OrderBy(x => x.Index)
-                .Select(x => x.Property)
-                .ToList();
-
-            ViewBag.SimilarProperties = orderedSimilar;
-            return View(property);
+                return PartialView("_PropertyResults", results);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.NoDataMessage = "حدث خطأ: " + ex.Message;
+                return PartialView("_PropertyResults", new List<Property>());
+            }
         }
     }
 }
