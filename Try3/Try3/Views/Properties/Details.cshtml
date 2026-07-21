@@ -3,7 +3,9 @@
     ViewData["Title"] = "تفاصيل العقار";
     Layout = null;
 }
-
+<!-- للتأكد من الـ ID -->
+@Html.AntiForgeryToken()
+<input type="hidden" id="propertyId" value="@Model.Id" />
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -48,7 +50,6 @@
             padding: 2rem;
         }
 
-        /* ====== نافبار ====== */
         .navbar {
             background: rgba(11, 19, 32, 0.96);
             padding: 0 1rem;
@@ -94,7 +95,6 @@
                     color: #d4af37;
                 }
 
-        /* ====== كارد التفاصيل ====== */
         .card {
             max-width: 100%;
             background: var(--white);
@@ -154,7 +154,6 @@
                 color: var(--gray);
             }
 
-        /* ====== الإحصائيات السريعة ====== */
         .detail-quick-stats {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -204,7 +203,6 @@
             font-weight: 500;
         }
 
-        /* ====== الأقسام ====== */
         .detail-section {
             margin-bottom: 30px;
             padding-bottom: 30px;
@@ -260,7 +258,6 @@
             border-right: 4px solid var(--gold);
         }
 
-        /* ====== معرض الصور ====== */
         .detail-gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -318,7 +315,6 @@
                 transform: translate(-50%, -50%) scale(1.1);
             }
 
-        /* ====== المرافق ====== */
         .detail-features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -347,7 +343,6 @@
                 transition: var(--transition);
             }
 
-        /* ====== الموقع والخريطة ====== */
         .detail-location-wrapper {
             display: grid;
             grid-template-columns: 1fr 350px;
@@ -430,7 +425,6 @@
                 font-weight: 700;
             }
 
-        /* ====== زر العودة ====== */
         .btn {
             padding: 12px 26px;
             border: none;
@@ -443,6 +437,7 @@
             align-items: center;
             gap: 7px;
             text-decoration: none;
+            transition: 0.3s;
         }
 
         .btn-primary {
@@ -456,24 +451,17 @@
                 color: #1a3250;
             }
 
-        .btn-secondary {
-            border: 1px solid #1a3250;
-            background: #1a314d;
-            color: #ffffff;
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
+        .btn-gold {
+            background: var(--gold);
+            color: var(--dark);
+            box-shadow: -1px 2px 9px rgba(212, 175, 55, 0.4);
         }
 
-            .btn-secondary:hover {
-                background: #ffffff;
-                color: #1a3250;
+            .btn-gold:hover {
+                background: var(--gold-dark);
+                color: #ffffff;
             }
 
-        /* ====== Responsive ====== */
         @@media (max-width: 992px) {
             .detail-location-wrapper {
                 grid-template-columns: 1fr;
@@ -519,17 +507,57 @@
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
+        /* ====== رسائل منبثقة ====== */
+        .notification-success {
+            background: rgba(25, 46, 67, 0.92);
+            border: 2px solid #d4af37;
+            color: #d4af37;
+        }
+
+            .notification-success #notificationIcon {
+                color: #22c55e;
+            }
+
+        .notification-error {
+            background: rgba(25, 46, 67, 0.92);
+            border: 2px solid #d4af37;
+            color: #d4af37;
+        }
+
+            .notification-error #notificationIcon {
+                color: #ef4444;
+            }
+
+        .notification-warning {
+            background: rgba(25, 46, 67, 0.92);
+            border: 2px solid #d4af37;
+            color: #d4af37;
+        }
+
+            .notification-warning #notificationIcon {
+                color: #f59e0b;
+            }
+
+        .notification-info {
+            background: rgba(25, 46, 67, 0.92);
+            border: 2px solid #d4af37;
+            color: #d4af37;
+        }
+
+            .notification-info #notificationIcon {
+                color: #3b82f6;
+            }
     </style>
 </head>
 <body>
 
     <!-- ====== نافبار ====== -->
     <nav class="navbar">
-        <img class="logo" src="~/hero.png" alt="Logo">
+        <img class="logo" src="/hero.png" alt="Logo" style="width:60px; height:auto;">
         <ul class="nav-links">
             <li><a href="/">الرئيسية</a></li>
             <li><a href="/Properties/Create">أعلن عن عقارك</a></li>
-            <li><a href="#">ابحث عن عقارك</a></li>
+            <li><a href="/Properties/MyFavorites">المفضلة</a></li>
             <li><a href="/Properties/MyProperties">عقاراتي</a></li>
             <li><a href="#">تواصل معنا</a></li>
         </ul>
@@ -710,16 +738,27 @@
                 </div>
             </div>
 
-            <!-- ====== زر العودة ====== -->
-            <div style="text-align:center; margin-top:30px;">
+            <!-- ====== أزرار ====== -->
+            <div style="text-align:center; margin-top:30px; display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+
+                <!-- ✅ زر إضافة إلى المفضلة -->
+                <button onclick="addToFavorites(@Model.Id)" class="btn btn-gold" style="background:var(--gold); color:var(--dark);">
+                    <i class="fa-regular fa-heart"></i> إضافة إلى المفضلة
+                </button>
+                <!-- ✅ زر العودة إلى عقاراتي -->
                 <a href="/Properties/MyProperties" class="btn btn-primary">
                     <i class="fa-solid fa-arrow-right"></i> العودة إلى عقاراتي
                 </a>
+
             </div>
 
         </div>
     </div>
-
+    <!-- ====== مودال الرسائل المنبثقة ====== -->
+    <div id="customNotification" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; min-width:300px; max-width:500px; padding:18px 28px; border-radius:16px; box-shadow:0 15px 50px rgba(0,0,0,0.5); backdrop-filter:blur(12px); font-family:'Tajawal',sans-serif; text-align:center; transition:all 0.4s ease; opacity:0; direction:rtl;">
+        <div id="notificationIcon" style="font-size:2rem; margin-bottom:8px;"></div>
+        <div id="notificationMessage" style="font-size:1.1rem; font-weight:700;"></div>
+    </div>
     <!-- ====== سكربتات ====== -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -786,6 +825,86 @@
                     setTimeout(function() { map.invalidateSize(); }, 300);
                 });
                 </text>
+        }
+
+        // ====== إضافة إلى المفضلة ======
+                     function showCustomNotification(message, type) {
+            var notif = document.getElementById('customNotification');
+            var icon = document.getElementById('notificationIcon');
+            var msg = document.getElementById('notificationMessage');
+
+            // إزالة الكلاسات السابقة
+            notif.className = '';
+            notif.style.display = 'block';
+            notif.style.opacity = '0';
+
+            // تعيين النوع
+            var iconClass = '';
+            if (type === 'success') {
+                notif.classList.add('notification-success');
+                iconClass = 'fa-solid fa-circle-check';
+            } else if (type === 'error') {
+                notif.classList.add('notification-error');
+                iconClass = 'fa-solid fa-circle-xmark';
+            } else if (type === 'warning') {
+                notif.classList.add('notification-warning');
+                iconClass = 'fa-solid fa-triangle-exclamation';
+            } else {
+                notif.classList.add('notification-info');
+                iconClass = 'fa-solid fa-circle-info';
+            }
+
+            icon.className = iconClass;
+            msg.textContent = message;
+
+            // ظهور الرسالة
+            setTimeout(function() {
+                notif.style.opacity = '1';
+            }, 50);
+
+            // اختفاء الرسالة بعد 3 ثواني
+            setTimeout(function() {
+                notif.style.opacity = '0';
+                setTimeout(function() {
+                    notif.style.display = 'none';
+                }, 400);
+            }, 3000);
+        }
+
+              function addToFavorites(propertyId) {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            if (!propertyId) {
+                showCustomNotification('⚠️ خطأ: لم يتم العثور على العقار', 'error');
+                return;
+            }
+
+            fetch('/Properties/AddToFavorites?propertyId=' + propertyId, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showCustomNotification(data.message, 'success');
+                    var btn = document.querySelector('.btn-gold');
+                    if (btn) {
+                        btn.innerHTML = '<i class="fa-solid fa-heart"></i> مضاف إلى المفضلة';
+                        btn.style.background = '#22c55e';
+                        btn.style.color = '#fff';
+                        btn.style.borderColor = '#22c55e';
+                        btn.disabled = true;
+                    }
+                } else {
+                    showCustomNotification(data.message, data.message.includes('بالفعل') ? 'warning' : 'error');
+                }
+            })
+            .catch(error => {
+                showCustomNotification('❌ حدث خطأ أثناء إضافة العقار إلى المفضلة', 'error');
+                console.error(error);
+            });
         }
     </script>
 

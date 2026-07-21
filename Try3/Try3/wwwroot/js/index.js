@@ -340,7 +340,7 @@ if (el.contactNavLink) {
 
 if (el.exploreBtn) {
     el.exploreBtn.addEventListener("click", function () {
-        window.location.href = "/Properties/Index";
+        window.location.href = "/Properties/All";
     });
 }
 
@@ -351,7 +351,7 @@ if (el.requestsBtn) {
 }
 
 // ============================================================
-// ✅ المدن (النقر على بطاقة المدينة) (تم التعديل)
+// المدن (النقر على بطاقة المدينة)
 // ============================================================
 
 if (el.citiesContainer) {
@@ -359,7 +359,8 @@ if (el.citiesContainer) {
         const cityCard = e.target.closest(".container-city");
         if (cityCard) {
             const cityName = cityCard.dataset.city;
-            window.location.href = "/Properties/Search?city=" + encodeURIComponent(cityName);
+            // ✅ الرابط الجديد يودي على PropertiesByCity
+            window.location.href = "/PropertiesByCity/City/" + encodeURIComponent(cityName);
         }
     });
 }
@@ -487,6 +488,11 @@ if (myPropsBtn) {
     myPropsBtn.addEventListener("click", function (e) {
         window.location.href = "/Properties/MyProperties";
     });
+    // ====== البحث حسب المدينة ======
+    function searchByCity(cityName) {
+        // توجيه إلى صفحة البحث مع تمرير اسم المدينة
+        window.location.href = '/Search/Index?city=' + encodeURIComponent(cityName);
+    }
 }
 
 console.log("✅ كل شيء جاهز في ملف index.js (متصل بـ Identity)!");

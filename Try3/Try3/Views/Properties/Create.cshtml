@@ -1,9 +1,11 @@
 ﻿@model RealEstateWebApp.Models.PropertyViewModel
+@using RealEstateWebApp.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
 @{
     ViewData["Title"] = "أعلن عن عقارك";
     Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -12,7 +14,6 @@
     <title>@ViewData["Title"] | SYRELIS - العقارات الفاخرة</title>
 
     <!-- ====== جميع CDN ====== -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -24,6 +25,8 @@
             --gold: #d4af37;
             --gray: #51596a;
             --white: #ffffff;
+            --gold-light: #f4e5c2;
+            --gold-dark: #917005;
             --border: #e8e4dc;
             --bg-light: #f8f9fa;
             --shadow: 0 4px 16px rgba(11, 19, 32, 0.08);
@@ -36,10 +39,13 @@
         }
 
         body {
-            background: #0b1320;
-            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(126deg, rgba(11, 19, 32, 0.85), rgb(11 19 32 / 62%)), url(https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format);
+            background-position: center;
+            background-attachment: fixed;
+            font-family: "Tajawal", sans-serif;
             color: var(--gold);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
@@ -54,7 +60,7 @@
             display: flex;
             align-items: center;
             border-bottom: 1px solid rgba(212, 175, 55, 0.4);
-            justify-content: space-evenly;
+            justify-content: space-between;
             box-shadow: 0px 15px 30px -10px rgb(23, 22, 70);
             position: sticky;
             top: 0;
@@ -63,98 +69,153 @@
             gap: 10px;
         }
 
-        .logo {
-            width: 6%;
-            margin-top: 8px;
-            margin-bottom: 8px;
-            min-width: 50px;
-            flex-shrink: 0;
-        }
-
-        .nav-links {
-            padding: 0 18rem;
-            display: flex;
-            gap: 70px;
-            list-style: none;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-            .nav-links a {
-                color: #f2efea;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 1rem;
-                transition: 0.3s;
-                white-space: nowrap;
+            .navbar .logo {
+                width: 82px;
+                margin: 8px 0;
+                flex-shrink: 0;
             }
 
-                .nav-links a:hover {
-                    color: #d4af37;
+            .navbar .nav-links {
+                display: flex;
+                gap: 30px;
+                list-style: none;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+            }
+
+                .navbar .nav-links a {
+                    color: #f2efea;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    transition: 0.3s;
+                    white-space: nowrap;
                 }
 
-        .tabs {
+                    .navbar .nav-links a:hover {
+                        color: #d4af37;
+                    }
+        /* ===== أيقونة المستخدم الاحترافية ===== */
+        .navbar-right {
             display: flex;
-            gap: 6px;
-            margin-top: 25px;
-            margin-bottom: 28px;
-            background: var(--bg-light);
-            padding: 6px;
-            border-radius: 12px;
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 15px;
+            margin-right: 3cm;
         }
 
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 13px 18px;
-            font-family: "Tajawal", sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--gray);
+        .user-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+            color: #0b1320;
+            font-weight: 800;
+            font-size: 1.1rem;
+            font-family: 'Tajawal', sans-serif;
             cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.25s;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+            text-decoration: none;
+            user-select: none;
+            position: relative;
+        }
+
+            .user-avatar:hover {
+                transform: scale(1.08);
+                box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+                border-color: #d4af37;
+            }
+
+            .user-avatar .tooltip {
+                position: absolute;
+                top: 110%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #0b1320;
+                color: #d4af37;
+                padding: 6px 14px;
+                border-radius: 8px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(212, 175, 55, 0.2);
+                pointer-events: none;
+                font-family: 'Tajawal', sans-serif;
+            }
+
+            .user-avatar:hover .tooltip {
+                opacity: 1;
+                visibility: visible;
+                top: 120%;
+            }
+
+            .user-avatar .tooltip::before {
+                content: '';
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border: 6px solid transparent;
+                border-bottom-color: #0b1320;
+            }
+        .page-header {
+            padding: 30px 35px;
+            margin-bottom: 49px;
+            box-shadow: 0 8px 24px rgba(11, 19, 32, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+            border-bottom: 2px solid #e2bd46;
+        }
+
+        .back-button {
+            width: 57px;
+            height: 54px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            border: 2px solid var(--white);
+            border-radius: 12px;
+            color: var(--dark);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: "Tajawal", sans-serif;
         }
 
-            .tab-btn i {
-                font-size: 1.05rem;
-            }
-
-            .tab-btn:hover {
-                color: var(--gold);
-            }
-
-            .tab-btn.active {
-                background: #192e43;
-                color: #fffefb;
-                box-shadow: -9px 4px 16px rgb(10 24 47 / 45%);
-            }
-
-        .tab-content {
-            display: none;
-            animation: fadeUp 0.4s ease;
+        .page-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
-            .tab-content.active {
-                display: block !important;
-            }
+        .page-title h1 {
+            color: #e2bd46 !important;
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+        }
 
-        @@keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .page-title p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin: 5px 0 0 0;
         }
 
         .card {
@@ -162,9 +223,33 @@
             background: var(--white);
             border-radius: 20px;
             padding: 28px;
-            margin-top: 50px;
+            margin-top: 30px;
             margin-bottom: 61px;
         }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--bg-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .card-header .icon-circle {
+                width: 40px;
+                height: 40px;
+                background: #192e43;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffd754;
+                font-size: 1.2rem;
+            }
 
         .form-grid {
             display: grid;
@@ -211,6 +296,17 @@
                 box-shadow: 0 0 0 2px rgb(215 219 232);
             }
 
+        select.form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            padding: 10px 12px 10px 35px;
+            background-color: white;
+            cursor: pointer;
+        }
+
         .form-step {
             display: block !important;
         }
@@ -220,7 +316,7 @@
             }
 
         .main-layout {
-            margin-top: 63px;
+            margin-top: 30px;
             display: flex !important;
             flex-direction: row !important;
             gap: 28px !important;
@@ -344,6 +440,7 @@
             display: inline-flex;
             align-items: center;
             gap: 7px;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -351,6 +448,11 @@
             color: #ffffff;
             box-shadow: -1px 2px 9px rgb(11 19 32 / 73%);
         }
+
+            .btn-primary:hover {
+                background: #ffffff;
+                color: #1a3250;
+            }
 
         .btn-secondary {
             border: 1px solid #1a3250;
@@ -363,7 +465,7 @@
             cursor: pointer;
         }
 
-            .btn-primary:hover, .btn-secondary:hover {
+            .btn-secondary:hover {
                 background: #ffffff;
                 color: #1a3250;
             }
@@ -532,47 +634,6 @@
             border-color: #dc3545 !important;
         }
 
-        select.form-control {
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
-            background-repeat: no-repeat;
-            background-position: left 12px center;
-            padding: 10px 12px 10px 35px;
-            background-color: white;
-            cursor: pointer;
-        }
-
-        .scroll-top {
-            color: #192e43;
-            font-size: 18px;
-            position: fixed;
-            bottom: 21px;
-            right: 26px;
-            width: 44px;
-            height: 44px;
-            background: #ffffff;
-            border: 3px solid #1a314d;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-            z-index: 999;
-        }
-
-            .scroll-top.show {
-                opacity: 1;
-                visibility: visible;
-            }
-
-        .hidden {
-            display: none !important;
-        }
-
         .control-container {
             position: absolute;
             top: 12px;
@@ -676,7 +737,37 @@
             z-index: 1;
         }
 
-        @@media screen and (max-width: 1200px) {
+        .scroll-top {
+            color: #192e43;
+            font-size: 18px;
+            position: fixed;
+            bottom: 21px;
+            right: 26px;
+            width: 44px;
+            height: 44px;
+            background: #ffffff;
+            border: 3px solid #1a314d;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+            .scroll-top.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @@media (max-width: 1200px) {
             .nav-links {
                 padding: 0 8rem;
                 gap: 40px;
@@ -717,7 +808,7 @@
             }
         }
 
-        @@media screen and (max-width: 992px) {
+        @@media (max-width: 992px) {
             .navbar {
                 justify-content: center;
                 padding: 10px 15px;
@@ -768,25 +859,38 @@
             }
         }
 
-        @@media screen and (max-width: 768px) {
+        @@media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
                 padding: 10px;
-                justify-content: center;
-            }
-
-            .logo {
-                width: 50px;
             }
 
             .nav-links {
                 padding: 0;
                 gap: 15px;
-                justify-content: center;
+                flex-wrap: wrap;
             }
 
+                .nav-links a {
+                    font-size: 0.8rem;
+                }
+
             .container {
-                padding: 0.8rem;
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .page-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .page-title h1 {
+                font-size: 1.4rem;
             }
 
             .main-layout {
@@ -844,10 +948,7 @@
             }
 
             .card {
-                padding: 15px;
-                border-radius: 14px;
-                max-width: 100%;
-                margin-right: 0;
+                padding: 16px;
             }
 
             .form-grid {
@@ -904,7 +1005,7 @@
             }
         }
 
-        @@media screen and (max-width: 480px) {
+        @@media (max-width: 480px) {
             .nav-links {
                 gap: 8px;
             }
@@ -917,9 +1018,12 @@
                 padding: 0.5rem;
             }
 
-            .tab-btn {
-                padding: 6px 10px;
-                font-size: 0.7rem;
+            .page-header {
+                padding: 15px;
+            }
+
+            .page-title h1 {
+                font-size: 1.2rem;
             }
 
             .timeline {
@@ -971,40 +1075,53 @@
 
     <!-- ========== شريط التنقل ========== -->
     <nav class="navbar">
-        <img class="logo" src="~/hero.png" alt="Logo">
+        <img class="logo" src="/image/hero.png" alt="SYRELIS" />
         <ul class="nav-links">
-            <li><a href="@Url.Action("Index", "Home")">الرئيسية</a></li>
-            <li><a href="@Url.Action("Create", "Properties")" id="announceLink"><span class="link_span">أعلن عن عقارك</span></a></li>
-            <li><a href="@Url.Action("Index", "Search")" id="searchLink"><span class="link_span">ابحث عن عقارك</span></a></li>
-            <li><a href="@Url.Action("Index", "Dashboard")"><span class="link_span">حسابي</span></a></li>
-            <li><a href="@Url.Action("Index", "Home")#contactSection" id="contactNavLink"><span class="link_span">تواصل معنا</span></a></li>
+            <li><a href="/Home/Index"><span class="link_span">الرئيسية</span></a></li>
+            <li><a href="/Properties/Create">أعلن عن عقارك</a></li>
+            <li><a href="/Search/Index"><span class="link_span">ابحث عن عقارك</span></a></li>
+            <li><a href="/Properties/MyFavorites">حسابي</a></li>
+            <li><a href="/Home/Index#contactSection"><span class="link_span">تواصل معنا</span></a></li>
         </ul>
+        <div class="navbar-right">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var userName = User.Identity?.Name ?? "مستخدم";
+                var firstLetter = userName.Length > 0 ? userName[0].ToString().ToUpper() : "?";
+                <div class="user-avatar">
+                    @firstLetter
+                    <span class="tooltip">@userName</span>
+                </div>
+            }
+            else
+            {
+                <button class="login-btn-nav" id="openModalBtn">
+                    <i class="fas fa-sign-in-alt" style="margin-left: 6px;"></i> تسجيل الدخول
+                </button>
+            }
+        </div>
     </nav>
 
     <div class="container">
+        <partial name="_Tabs" />
+        @if (TempData["Error"] != null)
+        {
+            <div class="error-msg" style="background:rgba(220,53,69,0.15); border:1px solid #dc3545; color:#dc3545; padding:12px 20px; border-radius:10px; text-align:center; margin-bottom:20px;">
+                <i class="fa-solid fa-circle-exclamation"></i> @TempData["Error"]
+            </div>
+        }
         <div class="page-header">
-            <h1 class="page-title">
-                <i class="fa-solid fa-user-tie"></i> لوحة التحكم
-            </h1>
+            <div class="page-info">
+                <a href="/" class="back-button"><i class="fas fa-arrow-right"></i></a>
+                <div class="page-title">
+                    <h1>أعلن عن عقارك</h1>
+                    <p>انشر عقارك وسيتواصل معك المشترون المناسبون</p>
+                </div>
+            </div>
         </div>
 
-        <div class="tabs">
-            <button class="tab-btn" onclick="switchTab('favorites', this)">
-                <i class="fa-solid fa-heart"></i> المفضلة
-            </button>
-            <button class="tab-btn active" id="addPropertyBtn" onclick="switchTab('addProperty', this)">
-                <i class="fa-solid fa-plus"></i> إضافة عقار
-            </button>
-            <button class="tab-btn" onclick="window.location.href='@Url.Action("MyProperties", "Properties")'">
-                <i class="fa-solid fa-building"></i> عقاراتي
-            </button>
-            <button class="tab-btn" onclick="switchTab('myNeeds', this)">
-                <i class="fas fa-home"></i> اطلب عقار
-            </button>
-        </div>
-
-        <!-- Tab: Add Property -->
-        <div id="addProperty" class="tab-content active">
+        <!-- ====== محتوى إضافة العقار ====== -->
+        <div id="addProperty">
             <div class="main-layout">
                 <aside class="steps-sidebar">
                     <div class="steps-sticky">
@@ -1386,7 +1503,6 @@
                 map._satelliteLabels = satelliteLabels;
                 map._currentLayer = 'map';
 
-                // إضافة الرجل الأصفر القابل للسحب
                 addPegmanToMap();
 
                 setTimeout(function() {
@@ -1399,7 +1515,7 @@
             }
         }
 
-        // ====== إضافة Pegman (الرجل الأصفر) القابل للسحب ======
+        // ====== إضافة Pegman (الرجل الأصفر) ======
         function addPegmanToMap() {
             if (!map) return;
 
@@ -1529,7 +1645,6 @@
                 document.getElementById("inputLng").value = "";
                 var mapErr = document.getElementById("mapError");
                 if (mapErr) mapErr.style.display = "block";
-                // إعادة إضافة الرجل الأصفر بعد تغيير المدينة
                 setTimeout(function() {
                     addPegmanToMap();
                 }, 300);
@@ -1586,7 +1701,6 @@
                     mapErr.style.display = "none";
                 }, 3000);
             }
-            // إعادة إضافة الرجل الأصفر
             setTimeout(function() {
                 addPegmanToMap();
             }, 300);
@@ -1680,7 +1794,6 @@
             var isValid = true;
 
             required.forEach(function(field) {
-                // تجاهل الحقول المخفية في الخطوة 3 (الخريطة)
                 if (field.id === "inputLat" || field.id === "inputLng") {
                     return;
                 }
@@ -1763,18 +1876,6 @@
             }
         }
 
-        // ====== دوال التبويب ======
-        function switchTab(tabId, btn) {
-            document.querySelectorAll(".tab-content").forEach(function(t) {
-                t.classList.remove("active");
-            });
-            document.querySelectorAll(".tab-btn").forEach(function(b) {
-                b.classList.remove("active");
-            });
-            document.getElementById(tabId).classList.add("active");
-            btn.classList.add("active");
-        }
-
         // ====== تهيئة الصفحة ======
         document.addEventListener('DOMContentLoaded', function() {
             var today = new Date().toISOString().split('T')[0];
@@ -1783,7 +1884,6 @@
                 availableFrom.setAttribute('min', today);
             }
 
-            // إدخال خط الطول والعرض يدوياً
             var inputLat = document.getElementById("inputLat");
             var inputLng = document.getElementById("inputLng");
 
@@ -1796,7 +1896,6 @@
                 inputLng.addEventListener('input', updateLocationFromInputs);
             }
 
-            // تهيئة الخريطة بعد تحميل الصفحة
             setTimeout(function() {
                 var citySelect = document.getElementById('citySelect');
                 var cityId = citySelect?.value || 1;
@@ -1804,7 +1903,6 @@
                 updateTimeline(1);
             }, 500);
 
-            // تحديث حجم الخريطة عند تغيير حجم النافذة
             window.addEventListener('resize', function() {
                 if (map) {
                     setTimeout(function() {
@@ -1814,7 +1912,6 @@
             });
         });
 
-        // ====== Scroll to top button ======
         window.onscroll = function() {
             var btn = document.getElementById('scrollBtn');
             if (btn) {
@@ -1822,5 +1919,6 @@
             }
         };
     </script>
+
 </body>
 </html>

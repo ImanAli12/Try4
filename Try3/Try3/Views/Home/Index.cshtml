@@ -23,10 +23,12 @@
         <ul class="nav-links">
             <li><a href="@Url.Action("Create", "Properties")" id="announceLink"><span class="link_span">أعلن عن عقارك</span></a></li>
             <li><a href="@Url.Action("Index", "Search")" id="searchLink">ابحث عن عقارك</a></li>
-            <li><a href="#" id="myAccountLink">حسابي</a></li>
+           
+            <li><a href="/Properties/MyFavorites">حسابي</a></li>
             <li><a href="#" id="contactNavLink">تواصل معنا</a></li>
         </ul>
         <button class="login-btn-nav" id="openModalBtn">تسجيل الدخول</button>
+
     </nav>
 
     <!-- ===== الهيرو ===== -->
@@ -35,12 +37,12 @@
             <h1>منزل <span>أحلامك</span><br />يبدأ من SYRELIS</h1>
             <p>أكبر منصة عقارية فاخرة في سوريا – أكثر من 10,000 عقار حصري بثقة وأمان كامل</p>
             <div>
-                <button class="btn-primary" id="explorePropertiesBtn">
+                <a href="/Properties/All" class="btn-primary" id="explorePropertiesBtn">
                     <i class="fa-solid fa-building"></i> استكشف العقارات
-                </button>
-                <button class="btn-outline" id="requestsBtn">
-                    <i class="fa-regular fa-clipboard"></i> العقارات المطلوبة
-                </button>
+                </a>
+                    <a href="/PropertyRequest/All" class="btn-outline" style="background:transparent; border:2px solid #d4af37; color:#d4af37; padding:12px 26px; border-radius:10px; font-family:'Tajawal',sans-serif; font-size:0.98rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:7px; text-decoration:none; transition:0.3s;">
+        <i class="fa-solid fa-list"></i> العقارات المطلوبة
+    </a>
             </div>
         </div>
     </section>
@@ -59,7 +61,7 @@
             {
                 foreach (var city in Model)
                 {
-                    <div class="container-city" data-city="@city.NameAr">
+                    <div class="container-city" data-city="@city.NameAr" onclick="window.location.href='@Url.Action("City", "PropertiesByCity", new { cityName = city.NameAr })'">
                         <img src="~/image/@(city.NameAr).jpg" alt="@city.NameAr" onerror="this.src='~/image/default-city.jpg'" />
                         <div class="overlay"></div>
                         <div class="city">@city.NameAr</div>

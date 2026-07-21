@@ -16,11 +16,14 @@ namespace RealEstateWebApp.Controllers
             _context = context;
         }
 
+        // ✅ أضيفي city هنا
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string city)
         {
             ViewBag.Cities = await _context.Cities.OrderBy(c => c.NameAr).ToListAsync();
             ViewBag.PropertyTypes = await _context.PropertyTypes.OrderBy(p => p.NameAr).ToListAsync();
+            ViewBag.SelectedCity = city ?? ""; // ✅ صح
+
             return View();
         }
 
@@ -56,17 +59,14 @@ namespace RealEstateWebApp.Controllers
             if (!string.IsNullOrWhiteSpace(neighborhood))
                 query = query.Where(p => p.Neighborhood != null && p.Neighborhood.Contains(neighborhood));
 
-            // ===== السعر (من - إلى) =====
             if (minPrice.HasValue)
                 query = query.Where(p => p.Price >= minPrice.Value);
             if (maxPrice.HasValue)
                 query = query.Where(p => p.Price <= maxPrice.Value);
 
-            // ===== العملة =====
             if (!string.IsNullOrWhiteSpace(currency))
                 query = query.Where(p => p.PriceCurrency == currency);
 
-            // ===== المساحة (من - إلى) =====
             if (minArea.HasValue)
                 query = query.Where(p => p.Area >= minArea.Value);
             if (maxArea.HasValue)
