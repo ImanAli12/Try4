@@ -6,7 +6,6 @@
     ViewData["Title"] = "اطلب عقار";
     Layout = null;
 }
-@Html.AntiForgeryToken()
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -39,10 +38,13 @@
         }
 
         body {
-            background: #0b1320;
-            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(126deg, rgba(11, 19, 32, 0.85), rgb(11 19 32 / 62%)), url(https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format);
+            background-position: center;
+            background-attachment: fixed;
+            font-family: "Tajawal", sans-serif;
             color: var(--gold);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
@@ -66,36 +68,36 @@
             gap: 10px;
         }
 
-        .navbar .logo {
-            width: 82px;
-            margin: 8px 0;
-            flex-shrink: 0;
-        }
+            .navbar .logo {
+                width: 82px;
+                margin: 8px 0;
+                flex-shrink: 0;
+            }
 
-        .navbar .nav-links {
-            display: flex;
-            gap: 30px;
-            list-style: none;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 0;
-            margin: 0;
-            align-items: center;
-            flex: 1;
-        }
+            .navbar .nav-links {
+                display: flex;
+                gap: 30px;
+                list-style: none;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+                margin: 0;
+                align-items: center;
+                flex: 1;
+            }
 
-        .navbar .nav-links a {
-            color: #f2efea;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: 0.3s;
-            white-space: nowrap;
-        }
+                .navbar .nav-links a {
+                    color: #f2efea;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    transition: 0.3s;
+                    white-space: nowrap;
+                }
 
-        .navbar .nav-links a:hover {
-            color: #d4af37;
-        }
+                    .navbar .nav-links a:hover {
+                        color: #d4af37;
+                    }
 
         .navbar-right {
             display: flex;
@@ -125,47 +127,47 @@
             position: relative;
         }
 
-        .user-avatar:hover {
-            transform: scale(1.08);
-            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
-            border-color: #d4af37;
-        }
+            .user-avatar:hover {
+                transform: scale(1.08);
+                box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+                border-color: #d4af37;
+            }
 
-        .user-avatar .tooltip {
-            position: absolute;
-            top: 110%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #0b1320;
-            color: #d4af37;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            pointer-events: none;
-            font-family: 'Tajawal', sans-serif;
-        }
+            .user-avatar .tooltip {
+                position: absolute;
+                top: 110%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #0b1320;
+                color: #d4af37;
+                padding: 6px 14px;
+                border-radius: 8px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(212, 175, 55, 0.2);
+                pointer-events: none;
+                font-family: 'Tajawal', sans-serif;
+            }
 
-        .user-avatar:hover .tooltip {
-            opacity: 1;
-            visibility: visible;
-            top: 120%;
-        }
+            .user-avatar:hover .tooltip {
+                opacity: 1;
+                visibility: visible;
+                top: 120%;
+            }
 
-        .user-avatar .tooltip::before {
-            content: '';
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-bottom-color: #0b1320;
-        }
+            .user-avatar .tooltip::before {
+                content: '';
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border: 6px solid transparent;
+                border-bottom-color: #0b1320;
+            }
 
         .login-btn-nav {
             background: transparent;
@@ -181,13 +183,13 @@
             white-space: nowrap;
         }
 
-        .login-btn-nav:hover {
-            background: #d4af37;
-            border: 1px solid rgb(50, 39, 11);
-            color: #0b1320;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-        }
+            .login-btn-nav:hover {
+                background: #d4af37;
+                border: 1px solid rgb(50, 39, 11);
+                color: #0b1320;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            }
 
         .page-header {
             padding: 30px 35px;
@@ -262,17 +264,17 @@
             gap: 10px;
         }
 
-        .card-header .icon-circle {
-            width: 40px;
-            height: 40px;
-            background: #192e43;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffd754;
-            font-size: 1.2rem;
-        }
+            .card-header .icon-circle {
+                width: 40px;
+                height: 40px;
+                background: #192e43;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffd754;
+                font-size: 1.2rem;
+            }
 
         .form-grid {
             display: grid;
@@ -286,21 +288,21 @@
             gap: 7px;
         }
 
-        .form-group.full {
-            grid-column: 1 / -1;
-        }
+            .form-group.full {
+                grid-column: 1 / -1;
+            }
 
-        .form-group label {
-            font-weight: 500;
-            color: var(--dark);
-            font-size: 1rem;
-        }
+            .form-group label {
+                font-weight: 500;
+                color: var(--dark);
+                font-size: 1rem;
+            }
 
-        .form-group label .req {
-            font-weight: 800;
-            color: #b20011;
-            font-size: 1.3rem;
-        }
+                .form-group label .req {
+                    font-weight: 800;
+                    color: #b20011;
+                    font-size: 1.3rem;
+                }
 
         .form-control {
             padding: 12px 15px;
@@ -313,11 +315,11 @@
             transition: all 0.25s;
         }
 
-        .form-control:focus {
-            outline: none;
-            border-color: #192e43;
-            box-shadow: 0 0 0 2px rgb(215 219 232);
-        }
+            .form-control:focus {
+                outline: none;
+                border-color: #192e43;
+                box-shadow: 0 0 0 2px rgb(215 219 232);
+            }
 
         select.form-control {
             appearance: none;
@@ -350,10 +352,10 @@
             box-shadow: -1px 2px 9px rgb(11 19 32 / 73%);
         }
 
-        .btn-primary:hover {
-            background: #ffffff;
-            color: #1a3250;
-        }
+            .btn-primary:hover {
+                background: #ffffff;
+                color: #1a3250;
+            }
 
         .form-actions {
             display: flex !important;
@@ -392,45 +394,57 @@
                 flex-direction: column;
                 padding: 10px;
             }
-            .navbar .nav-links {
-                gap: 12px;
-            }
-            .navbar .nav-links a {
-                font-size: 0.8rem;
-            }
+
+                .navbar .nav-links {
+                    gap: 12px;
+                }
+
+                    .navbar .nav-links a {
+                        font-size: 0.8rem;
+                    }
+
             .container {
                 padding: 1rem;
             }
+
             .page-header {
                 flex-direction: column;
                 text-align: center;
                 padding: 20px;
             }
+
             .page-title h1 {
                 font-size: 1.4rem;
             }
+
             .form-grid {
                 grid-template-columns: 1fr;
             }
+
             .card {
                 padding: 16px;
             }
+
             .form-actions {
                 flex-direction: column;
                 align-items: stretch;
             }
+
             .btn-group {
                 justify-content: center;
             }
+
             .user-avatar {
                 width: 36px;
                 height: 36px;
                 font-size: 0.9rem;
             }
+
             .login-btn-nav {
                 padding: 8px 16px;
                 font-size: 0.75rem;
             }
+
             .navbar-right {
                 gap: 10px;
                 margin-left: 0;
@@ -441,21 +455,27 @@
             .navbar .nav-links {
                 gap: 8px;
             }
-            .navbar .nav-links a {
-                font-size: 0.7rem;
-            }
+
+                .navbar .nav-links a {
+                    font-size: 0.7rem;
+                }
+
             .container {
                 padding: 0.5rem;
             }
+
             .page-header {
                 padding: 15px;
             }
+
             .page-title h1 {
                 font-size: 1.2rem;
             }
+
             .card {
                 padding: 12px;
             }
+
             .form-control {
                 padding: 8px 10px;
                 font-size: 0.8rem;

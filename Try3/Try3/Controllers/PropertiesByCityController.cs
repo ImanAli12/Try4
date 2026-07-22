@@ -5,6 +5,8 @@ using RealEstateWebApp.Models;
 
 namespace RealEstateWebApp.Controllers
 {
+    // ✅ أضف هذا السطر
+    [Route("PropertiesByCity")]
     public class PropertiesByCityController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -14,7 +16,8 @@ namespace RealEstateWebApp.Controllers
             _context = context;
         }
 
-        // GET: PropertiesByCity/City/{cityName}
+        // ✅ أضف هذا السطر
+        [Route("City/{cityName}")]
         public async Task<IActionResult> City(string cityName)
         {
             if (string.IsNullOrEmpty(cityName))
@@ -22,7 +25,6 @@ namespace RealEstateWebApp.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // جلب العقارات حسب اسم المدينة
             var properties = await _context.Properties
                 .Include(p => p.City)
                 .Include(p => p.PropertyType)
@@ -32,7 +34,6 @@ namespace RealEstateWebApp.Controllers
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
-            // جلب اسم المدينة من قاعدة البيانات (للتأكد من الكتابة الصحيحة)
             var city = await _context.Cities.FirstOrDefaultAsync(c => c.NameAr == cityName);
 
             ViewBag.CityName = city?.NameAr ?? cityName;

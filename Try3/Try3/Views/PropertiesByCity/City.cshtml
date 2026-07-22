@@ -597,7 +597,34 @@
                 color: rgba(255,255,255,0.7);
                 font-size: 18px;
             }
+        /* ===== زر التفاصيل ===== */
+        .btn-details {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a253a 100%);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: "Tajawal", sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
 
+            .btn-details:hover {
+                background: var(--gold);
+                color: var(--dark);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+            }
+
+            .btn-details i {
+                font-size: 0.9rem;
+            }
         /* ===== Responsive ===== */
         @@media (max-width: 992px) {
             .navbar .nav-links {
@@ -772,7 +799,7 @@
             <li><a href="@Url.Action("Index", "Home")">الرئيسية</a></li>
             <li><a href="@Url.Action("Create", "Properties")">أعلن عن عقارك</a></li>
             <li><a href="@Url.Action("Index", "Search")">ابحث عن عقارك</a></li>
-            <li><a href="@Url.Action("Index", "Dashboard")">حسابي</a></li>
+            <li><a href="@Url.Action("Index", "MyFavorites")">حسابي</a></li>
             <li><a href="@Url.Action("Index", "Home")#contactSection">تواصل معنا</a></li>
         </ul>
         <button class="login-btn-nav" id="openModalBtn">تسجيل الدخول</button>
@@ -837,10 +864,9 @@
                                     <i class="fas fa-bath"></i> @baths
                                 </div>
                             </div>
-                            <button class="btn-favorite" data-id="@property.Id">
-                                <i class="far fa-heart"></i>
-                                <span>أضف للمفضلة</span>
-                            </button>
+                            <a href="@Url.Action("Details", "Properties", new { id = property.Id })" class="btn-details">
+                                <i class="fas fa-info-circle"></i> تفاصيل
+                            </a>
                         </div>
                     </div>
                 }
@@ -1057,9 +1083,11 @@
             }
         }
 
-        // ===== المفضلة =====
+             // ===== المفضلة =====
         function toggleFavorite(btn) {
             var propertyId = parseInt(btn.dataset.id);
+            console.log("🔄 إضافة/إزالة من المفضلة للعقار:", propertyId);
+
             var favorites = JSON.parse(localStorage.getItem("syrelis_favorites") || "[]");
             var index = favorites.findIndex(function(f) { return f.id === propertyId; });
 
@@ -1068,9 +1096,15 @@
                 btn.classList.remove("added");
                 btn.querySelector("i").className = "far fa-heart";
                 btn.querySelector("span").textContent = "أضف للمفضلة";
+                console.log("❌ تمت الإزالة من المفضلة");
             } else {
                 var card = btn.closest(".property-card");
-                var title = card.querySelector(".property-title")?.textContent || "";
+                if (!card) {
+                    console.error("❌ لم يتم العثور على البطاقة");
+                    return;
+                }
+
+                var title = card.querySelector(".property-title")?.textContent || "عقار بدون عنوان";
                 var price = card.querySelector(".price-original")?.textContent || "";
                 var img = card.querySelector(".property-image img")?.src || "";
                 var location = card.querySelector(".property-location span")?.textContent || "";
@@ -1080,14 +1114,18 @@
                     title: title,
                     price: price,
                     img: img,
-                    location: location
+                    location: location,
+                    addedAt: new Date().toISOString()
                 });
+
                 btn.classList.add("added");
                 btn.querySelector("i").className = "fas fa-heart";
                 btn.querySelector("span").textContent = "في المفضلة";
+                console.log("✅ تمت الإضافة إلى المفضلة");
             }
 
             localStorage.setItem("syrelis_favorites", JSON.stringify(favorites));
+            console.log("📋 عدد المفضلات:", favorites.length);
         }
 
         // ===== الأحداث =====
@@ -1169,20 +1207,20 @@
                 });
             }
 
-            document.querySelectorAll(".btn-favorite").forEach(function(btn) {
-                btn.addEventListener("click", function(e) {
-                    e.stopPropagation();
-                    toggleFavorite(btn);
-                });
-
-                var propertyId = parseInt(btn.dataset.id);
-                var favorites = JSON.parse(localStorage.getItem("syrelis_favorites") || "[]");
-                if (favorites.some(function(f) { return f.id === propertyId; })) {
-                    btn.classList.add("added");
-                    btn.querySelector("i").className = "fas fa-heart";
-                    btn.querySelector("span").textContent = "في المفضلة";
-                }
+                  document.querySelectorAll(".btn-favorite").forEach(function(btn) {
+            btn.addEventListener("click", function(e) {
+                e.stopPropagation();
+                toggleFavorite(btn);
             });
+
+            var propertyId = parseInt(btn.dataset.id);
+            var favorites = JSON.parse(localStorage.getItem("syrelis_favorites") || "[]");
+            if (favorites.some(function(f) { return f.id === propertyId; })) {
+                btn.classList.add("added");
+                btn.querySelector("i").className = "fas fa-heart";
+                btn.querySelector("span").textContent = "في المفضلة";
+            }
+        });
 
             document.addEventListener("keydown", function(e) {
                 if (e.key === "Escape") {

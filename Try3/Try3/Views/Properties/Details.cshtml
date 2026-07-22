@@ -50,13 +50,14 @@
             padding: 2rem;
         }
 
+        /* ===== Navbar ===== */
         .navbar {
             background: rgba(11, 19, 32, 0.96);
             padding: 0 1rem;
             display: flex;
             align-items: center;
             border-bottom: 1px solid rgba(212, 175, 55, 0.4);
-            justify-content: space-evenly;
+            justify-content: space-between;
             box-shadow: 0px 15px 30px -10px rgb(23, 22, 70);
             position: sticky;
             top: 0;
@@ -65,36 +66,68 @@
             gap: 10px;
         }
 
-        .logo {
-            width: 6%;
-            margin-top: 8px;
-            margin-bottom: 8px;
-            min-width: 50px;
-            flex-shrink: 0;
-        }
-
-        .nav-links {
-            padding: 0 18rem;
-            display: flex;
-            gap: 70px;
-            list-style: none;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-            .nav-links a {
-                color: #f2efea;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 1rem;
-                transition: 0.3s;
-                white-space: nowrap;
+            .navbar .logo {
+                width: 82px;
+                margin: 8px 0;
+                flex-shrink: 0;
             }
 
-                .nav-links a:hover {
-                    color: #d4af37;
+            .navbar .nav-links {
+                display: flex;
+                gap: 30px;
+                list-style: none;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+                margin: 0;
+                align-items: center;
+                flex: 1;
+            }
+
+                .navbar .nav-links a {
+                    color: #f2efea;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    transition: 0.3s;
+                    white-space: nowrap;
                 }
 
+                    .navbar .nav-links a:hover {
+                        color: #d4af37;
+                    }
+
+            .navbar .login-btn-nav {
+                background: transparent;
+                border: 1.5px dashed #d4af37;
+                color: #d4af37;
+                padding: 10px 22px;
+                border-radius: 40px;
+                font-weight: 700;
+                font-size: 0.9rem;
+                font-family: "Tajawal", sans-serif;
+                cursor: pointer;
+                transition: all 0.3s;
+                flex-shrink: 0;
+            }
+
+                .navbar .login-btn-nav:hover {
+                    background: #d4af37;
+                    border: 1px solid rgb(50, 39, 11);
+                    color: #0b1320;
+                }
+
+                .navbar .login-btn-nav.logout-active {
+                    color: #d4af37;
+                    border: 1.5px solid #d4af37;
+                }
+
+                    .navbar .login-btn-nav.logout-active:hover {
+                        background: #d4af37;
+                        color: #0b1320;
+                    }
+
+        /* ===== Card ===== */
         .card {
             max-width: 100%;
             background: var(--white);
@@ -104,12 +137,13 @@
             margin-bottom: 61px;
         }
 
+        /* ===== Detail Header ===== */
         .detail-header-card {
             background: linear-gradient(135deg, #f8f9fa, #ffffff);
             border-radius: 16px;
             padding: 25px;
             margin-bottom: 25px;
-            border: 2px solid var(--border);
+            border: 2px solid var(--gold);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -154,6 +188,7 @@
                 color: var(--gray);
             }
 
+        /* ===== Quick Stats ===== */
         .detail-quick-stats {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -173,8 +208,12 @@
             background: white;
             border-radius: 14px;
             border: 2px solid var(--border);
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
+
+            .detail-stat-item:hover {
+                border-color: var(--gold);
+            }
 
         .detail-stat-icon {
             width: 45px;
@@ -203,6 +242,7 @@
             font-weight: 500;
         }
 
+        /* ===== Sections ===== */
         .detail-section {
             margin-bottom: 30px;
             padding-bottom: 30px;
@@ -258,6 +298,7 @@
             border-right: 4px solid var(--gold);
         }
 
+        /* ===== Gallery ===== */
         .detail-gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -271,7 +312,7 @@
             overflow: hidden;
             cursor: pointer;
             border: 3px solid var(--border);
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
 
             .detail-gallery-item:hover {
@@ -306,7 +347,7 @@
                 justify-content: center;
                 color: var(--dark);
                 opacity: 0;
-                transition: var(--transition);
+                transition: all 0.3s ease;
                 font-size: 1.2rem;
             }
 
@@ -315,6 +356,7 @@
                 transform: translate(-50%, -50%) scale(1.1);
             }
 
+        /* ===== Features ===== */
         .detail-features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -331,18 +373,22 @@
             border-radius: 12px;
             font-weight: 700;
             color: var(--dark);
-            transition: var(--transition);
+            transition: all 0.3s ease;
             font-size: 0.9rem;
         }
+
+            .detail-feature-item:hover {
+                border-color: var(--gold);
+            }
 
             .detail-feature-item i {
                 color: #fad765;
                 font-size: 1.4rem;
                 width: 22px;
                 text-align: center;
-                transition: var(--transition);
             }
 
+        /* ===== Location ===== */
         .detail-location-wrapper {
             display: grid;
             grid-template-columns: 1fr 350px;
@@ -356,7 +402,7 @@
             border-radius: 18px;
             overflow: hidden;
             border: 3px solid #d4af37;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
 
             .detail-static-map:hover {
@@ -400,7 +446,7 @@
             border-bottom: 1px solid var(--border);
             color: var(--gray);
             font-size: 0.9rem;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             justify-content: flex-start;
             align-items: flex-start;
         }
@@ -425,6 +471,7 @@
                 font-weight: 700;
             }
 
+        /* ===== Buttons ===== */
         .btn {
             padding: 12px 26px;
             border: none;
@@ -462,52 +509,13 @@
                 color: #ffffff;
             }
 
-        @@media (max-width: 992px) {
-            .detail-location-wrapper {
-                grid-template-columns: 1fr;
+            .btn-gold.added {
+                background: #22c55e;
+                color: #fff;
+                border-color: #22c55e;
             }
 
-            .nav-links {
-                padding: 0 2rem;
-                gap: 25px;
-            }
-        }
-
-        @@media (max-width: 768px) {
-            .detail-quick-stats {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-                padding: 15px;
-            }
-
-            .detail-header-card {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .detail-header-price {
-                text-align: right;
-                width: 100%;
-            }
-
-            .nav-links {
-                padding: 0;
-                gap: 15px;
-                flex-wrap: wrap;
-            }
-
-                .nav-links a {
-                    font-size: 0.8rem;
-                }
-
-            .container {
-                padding: 0.8rem;
-            }
-
-            .detail-gallery-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-        }
-        /* ====== رسائل منبثقة ====== */
+        /* ===== Notification ===== */
         .notification-success {
             background: rgba(25, 46, 67, 0.92);
             border: 2px solid #d4af37;
@@ -547,20 +555,171 @@
             .notification-info #notificationIcon {
                 color: #3b82f6;
             }
+
+        /* ===== Responsive ===== */
+        @@media (max-width: 992px) {
+            .detail-location-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar .nav-links {
+                gap: 25px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .detail-quick-stats {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                padding: 15px;
+            }
+
+            .detail-header-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .detail-header-price {
+                text-align: right;
+                width: 100%;
+            }
+
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+                .navbar .logo {
+                    width: 50px;
+                }
+
+                .navbar .nav-links {
+                    gap: 15px;
+                }
+
+                    .navbar .nav-links a {
+                        font-size: 0.8rem;
+                    }
+
+            .container {
+                padding: 0.8rem;
+            }
+
+            .detail-gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .detail-section-title {
+                font-size: 1.2rem;
+            }
+
+                .detail-section-title i {
+                    width: 38px;
+                    height: 38px;
+                    font-size: 1rem;
+                }
+
+            .detail-header-info h2 {
+                font-size: 1.4rem;
+            }
+
+            .detail-header-price .price-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .navbar .nav-links {
+                gap: 8px;
+            }
+
+                .navbar .nav-links a {
+                    font-size: 0.7rem;
+                }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            .detail-header-card {
+                padding: 15px;
+            }
+
+            .detail-quick-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .detail-stat-item {
+                padding: 10px;
+            }
+
+            .detail-stat-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+
+            .detail-stat-info .detail-stat-value {
+                font-size: 1rem;
+            }
+
+            .detail-gallery-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .detail-features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .detail-location-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-static-map {
+                height: 250px;
+            }
+
+            .detail-location-info {
+                padding: 15px;
+            }
+
+            .detail-section-title {
+                font-size: 1rem;
+            }
+
+                .detail-section-title i {
+                    width: 32px;
+                    height: 32px;
+                    font-size: 0.8rem;
+                }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+
+            .btn-gold, .btn-primary {
+                justify-content: center;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- ====== نافبار ====== -->
     <nav class="navbar">
-        <img class="logo" src="/hero.png" alt="Logo" style="width:60px; height:auto;">
+        <img class="logo" src="/image/hero.png" alt="SYRELIS" />
         <ul class="nav-links">
             <li><a href="/">الرئيسية</a></li>
             <li><a href="/Properties/Create">أعلن عن عقارك</a></li>
             <li><a href="/Properties/MyFavorites">المفضلة</a></li>
             <li><a href="/Properties/MyProperties">عقاراتي</a></li>
-            <li><a href="#">تواصل معنا</a></li>
+            <li><a href="/#contactSection">تواصل معنا</a></li>
         </ul>
+        <button class="login-btn-nav" id="openModalBtn">تسجيل الدخول</button>
     </nav>
 
     <div class="container">
@@ -742,7 +901,7 @@
             <div style="text-align:center; margin-top:30px; display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
 
                 <!-- ✅ زر إضافة إلى المفضلة -->
-                <button onclick="addToFavorites(@Model.Id)" class="btn btn-gold" style="background:var(--gold); color:var(--dark);">
+                <button onclick="addToFavorites(@Model.Id)" class="btn btn-gold" id="favoriteBtn">
                     <i class="fa-regular fa-heart"></i> إضافة إلى المفضلة
                 </button>
                 <!-- ✅ زر العودة إلى عقاراتي -->
@@ -754,11 +913,13 @@
 
         </div>
     </div>
+
     <!-- ====== مودال الرسائل المنبثقة ====== -->
     <div id="customNotification" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; min-width:300px; max-width:500px; padding:18px 28px; border-radius:16px; box-shadow:0 15px 50px rgba(0,0,0,0.5); backdrop-filter:blur(12px); font-family:'Tajawal',sans-serif; text-align:center; transition:all 0.4s ease; opacity:0; direction:rtl;">
         <div id="notificationIcon" style="font-size:2rem; margin-bottom:8px;"></div>
         <div id="notificationMessage" style="font-size:1.1rem; font-weight:700;"></div>
     </div>
+
     <!-- ====== سكربتات ====== -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -782,63 +943,61 @@
         // ====== الخريطة ======
         @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
         {
-                <text>
-                document.addEventListener('DOMContentLoaded', function() {
-                    var mapContainer = document.getElementById('detailStaticMap');
-                    if (!mapContainer) return;
+                        <text>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var mapContainer = document.getElementById('detailStaticMap');
+                            if (!mapContainer) return;
 
-                    var map = L.map('detailStaticMap', {
-                        center: [@Model.Latitude.Value.ToString("F6"), @Model.Longitude.Value.ToString("F6")],
-                        zoom: 15,
-                        dragging: false,
-                        scrollWheelZoom: false,
-                        touchZoom: false,
-                        doubleClickZoom: false,
-                        boxZoom: false,
-                        keyboard: false,
-                        zoomControl: false,
-                        attributionControl: false
-                    });
+                            var map = L.map('detailStaticMap', {
+                                center: [@Model.Latitude.Value.ToString("F6"), @Model.Longitude.Value.ToString("F6")],
+                                zoom: 15,
+                                dragging: false,
+                                scrollWheelZoom: false,
+                                touchZoom: false,
+                                doubleClickZoom: false,
+                                boxZoom: false,
+                                keyboard: false,
+                                zoomControl: false,
+                                attributionControl: false
+                            });
 
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19
-                    }).addTo(map);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                maxZoom: 19
+                            }).addTo(map);
 
-                    var pegmanSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 38" width="44" height="44">
-                        <path d="M16.6 38.1h-5.5l-.2-2.9-.2 2.9H5.2L5 25.3l-.8 2a1.53 1.53 0 01-1.9.9l-1.2-.4a1.58 1.58 0 01-1-1.9v-.1c.3-.9 3.1-11.2 3.1-11.2a2.66 2.66 0 012.3-2l.6-.5a6.93 6.93 0 014.7-12 6.8 6.8 0 014.9 2 7 7 0 012 4.9 6.65 6.65 0 01-2.2 5l.7.5a2.78 2.78 0 012.4 2s2.9 11.2 2.9 11.3a1.53 1.53 0 01-.9 1.9l-1.3.4a1.63 1.63 0 01-1.9-.9l-.7-1.8z" fill="#333" opacity=".7"/>
-                        <path d="m20.6 26.1-2.9-11.3a1.71 1.71 0 00-1.6-1.2H5.7a1.69 1.69 0 00-1.5 1.3L1.1 26.2a.61.61 0 00.3.7l1.1.4a.61.61 0 00.7-.3l2.7-6.7.2 16.8h3.6l.6-9.3a.47.47 0 01.44-.5h.06c.4 0 .4.2.5.5l.6 9.3h3.6l.2-16.8 2.5 6.6a.52.52 0 00.66.31l1.2-.4a.57.57 0 00.5-.7Z" fill="#fdbf2d"/>
-                        <circle cx="10.9" cy="7" r="5.9" fill="#fdbf2d"/>
-                    </svg>`;
+                            var pegmanSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 38" width="44" height="44">
+                                <path d="M16.6 38.1h-5.5l-.2-2.9-.2 2.9H5.2L5 25.3l-.8 2a1.53 1.53 0 01-1.9.9l-1.2-.4a1.58 1.58 0 01-1-1.9v-.1c.3-.9 3.1-11.2 3.1-11.2a2.66 2.66 0 012.3-2l.6-.5a6.93 6.93 0 014.7-12 6.8 6.8 0 014.9 2 7 7 0 012 4.9 6.65 6.65 0 01-2.2 5l.7.5a2.78 2.78 0 012.4 2s2.9 11.2 2.9 11.3a1.53 1.53 0 01-.9 1.9l-1.3.4a1.63 1.63 0 01-1.9-.9l-.7-1.8z" fill="#333" opacity=".7"/>
+                                <path d="m20.6 26.1-2.9-11.3a1.71 1.71 0 00-1.6-1.2H5.7a1.69 1.69 0 00-1.5 1.3L1.1 26.2a.61.61 0 00.3.7l1.1.4a.61.61 0 00.7-.3l2.7-6.7.2 16.8h3.6l.6-9.3a.47.47 0 01.44-.5h.06c.4 0 .4.2.5.5l.6 9.3h3.6l.2-16.8 2.5 6.6a.52.52 0 00.66.31l1.2-.4a.57.57 0 00.5-.7Z" fill="#fdbf2d"/>
+                                <circle cx="10.9" cy="7" r="5.9" fill="#fdbf2d"/>
+                            </svg>`;
 
-                    var pegmanIcon = L.divIcon({
-                        className: 'pegman-marker',
-                        html: pegmanSVG,
-                        iconSize: [44, 44],
-                        iconAnchor: [22, 42]
-                    });
+                            var pegmanIcon = L.divIcon({
+                                className: 'pegman-marker',
+                                html: pegmanSVG,
+                                iconSize: [44, 44],
+                                iconAnchor: [22, 42]
+                            });
 
-                    L.marker([@Model.Latitude.Value.ToString("F6"), @Model.Longitude.Value.ToString("F6")], {
-                        icon: pegmanIcon,
-                        draggable: false
-                    }).addTo(map);
+                            L.marker([@Model.Latitude.Value.ToString("F6"), @Model.Longitude.Value.ToString("F6")], {
+                                icon: pegmanIcon,
+                                draggable: false
+                            }).addTo(map);
 
-                    setTimeout(function() { map.invalidateSize(); }, 300);
-                });
-                </text>
+                            setTimeout(function() { map.invalidateSize(); }, 300);
+                        });
+                        </text>
         }
 
         // ====== إضافة إلى المفضلة ======
-                     function showCustomNotification(message, type) {
+        function showCustomNotification(message, type) {
             var notif = document.getElementById('customNotification');
             var icon = document.getElementById('notificationIcon');
             var msg = document.getElementById('notificationMessage');
 
-            // إزالة الكلاسات السابقة
             notif.className = '';
             notif.style.display = 'block';
             notif.style.opacity = '0';
 
-            // تعيين النوع
             var iconClass = '';
             if (type === 'success') {
                 notif.classList.add('notification-success');
@@ -857,12 +1016,10 @@
             icon.className = iconClass;
             msg.textContent = message;
 
-            // ظهور الرسالة
             setTimeout(function() {
                 notif.style.opacity = '1';
             }, 50);
 
-            // اختفاء الرسالة بعد 3 ثواني
             setTimeout(function() {
                 notif.style.opacity = '0';
                 setTimeout(function() {
@@ -871,7 +1028,7 @@
             }, 3000);
         }
 
-              function addToFavorites(propertyId) {
+        function addToFavorites(propertyId) {
             var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
             if (!propertyId) {
@@ -889,12 +1046,10 @@
             .then(data => {
                 if (data.success) {
                     showCustomNotification(data.message, 'success');
-                    var btn = document.querySelector('.btn-gold');
+                    var btn = document.getElementById('favoriteBtn');
                     if (btn) {
                         btn.innerHTML = '<i class="fa-solid fa-heart"></i> مضاف إلى المفضلة';
-                        btn.style.background = '#22c55e';
-                        btn.style.color = '#fff';
-                        btn.style.borderColor = '#22c55e';
+                        btn.classList.add('added');
                         btn.disabled = true;
                     }
                 } else {
@@ -906,6 +1061,31 @@
                 console.error(error);
             });
         }
+
+        // ====== التحقق من حالة المفضلة عند تحميل الصفحة ======
+        document.addEventListener('DOMContentLoaded', function() {
+            var propertyId = @Model.Id;
+            var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            fetch('/Properties/CheckFavorite?propertyId=' + propertyId, {
+                method: 'GET',
+                headers: {
+                    'RequestVerificationToken': token || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.isFavorite) {
+                    var btn = document.getElementById('favoriteBtn');
+                    if (btn) {
+                        btn.innerHTML = '<i class="fa-solid fa-heart"></i> مضاف إلى المفضلة';
+                        btn.classList.add('added');
+                        btn.disabled = true;
+                    }
+                }
+            })
+            .catch(error => console.error('خطأ في التحقق من المفضلة:', error));
+        });
     </script>
 
 </body>

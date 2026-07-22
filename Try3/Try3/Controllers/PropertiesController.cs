@@ -134,12 +134,15 @@ namespace RealEstateWebApp.Controllers
         public async Task<IActionResult> MyProperties()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var properties = await _context.Properties
                 .Include(p => p.Images)
-                .Include(p => p.City)
                 .Include(p => p.PropertyType)
+                .Include(p => p.City)
                 .Where(p => p.AdvertiserId == user.Id)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
