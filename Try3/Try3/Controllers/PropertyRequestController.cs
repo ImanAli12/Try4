@@ -7,7 +7,7 @@ using RealEstateWebApp.Models;
 
 namespace RealEstateWebApp.Controllers
 {
-    [Authorize]
+  
     public class PropertyRequestController : Controller
     {
         private readonly ApplicationDbContext _context;

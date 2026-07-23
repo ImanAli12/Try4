@@ -1,4 +1,6 @@
-﻿@model RealEstateWebApp.Models.Property
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<RealEstateWebApp.Models.ApplicationUser> SignInManager
+@model RealEstateWebApp.Models.Property
 @{
     ViewData["Title"] = "تفاصيل العقار";
     Layout = null;
@@ -39,9 +41,11 @@
             background: linear-gradient(126deg, rgba(11, 19, 32, 0.85), rgb(11 19 32 / 62%)), url(https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format);
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             font-family: "Tajawal", sans-serif;
             color: var(--gold);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
@@ -97,35 +101,158 @@
                         color: #d4af37;
                     }
 
-            .navbar .login-btn-nav {
-                background: transparent;
-                border: 1.5px dashed #d4af37;
-                color: #d4af37;
-                padding: 10px 22px;
-                border-radius: 40px;
-                font-weight: 700;
-                font-size: 0.9rem;
-                font-family: "Tajawal", sans-serif;
-                cursor: pointer;
-                transition: all 0.3s;
-                flex-shrink: 0;
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-right: 3cm;
+        }
+
+        .user-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+            color: #0b1320;
+            font-weight: 800;
+            font-size: 1.1rem;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+            text-decoration: none;
+            user-select: none;
+            position: relative;
+        }
+
+            .user-avatar:hover {
+                transform: scale(1.08);
+                box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+                border-color: #d4af37;
             }
 
-                .navbar .login-btn-nav:hover {
+            .user-avatar .tooltip {
+                position: absolute;
+                top: 110%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #0b1320;
+                color: #d4af37;
+                padding: 6px 14px;
+                border-radius: 8px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(212, 175, 55, 0.2);
+                pointer-events: none;
+                font-family: 'Tajawal', sans-serif;
+            }
+
+            .user-avatar:hover .tooltip {
+                opacity: 1;
+                visibility: visible;
+                top: 120%;
+            }
+
+            .user-avatar .tooltip::before {
+                content: '';
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border: 6px solid transparent;
+                border-bottom-color: #0b1320;
+            }
+
+        .login-btn-nav {
+            background: transparent;
+            border: 1.5px dashed #d4af37;
+            color: #d4af37;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-family: "Tajawal", sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+            .login-btn-nav:hover {
+                background: #d4af37;
+                border: 1px solid rgb(50, 39, 11);
+                color: #0b1320;
+            }
+
+            .login-btn-nav.logout-active {
+                color: #d4af37;
+                border: 1.5px solid #d4af37;
+            }
+
+                .login-btn-nav.logout-active:hover {
                     background: #d4af37;
-                    border: 1px solid rgb(50, 39, 11);
                     color: #0b1320;
                 }
 
-                .navbar .login-btn-nav.logout-active {
-                    color: #d4af37;
-                    border: 1.5px solid #d4af37;
-                }
+        /* ===== Page Header ===== */
+        .page-header {
+            padding: 30px 35px;
+            margin-bottom: 49px;
+            box-shadow: 0 8px 24px rgba(11, 19, 32, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+            border-bottom: 2px solid #e2bd46;
+        }
 
-                    .navbar .login-btn-nav.logout-active:hover {
-                        background: #d4af37;
-                        color: #0b1320;
-                    }
+        .back-button {
+            width: 57px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            border: 2px solid var(--white);
+            border-radius: 12px;
+            color: #d4af37;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: "Tajawal", sans-serif;
+        }
+
+        .page-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            color: #e2bd46 !important;
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .page-title p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin: 5px 0 0 0;
+        }
 
         /* ===== Card ===== */
         .card {
@@ -133,8 +260,10 @@
             background: var(--white);
             border-radius: 20px;
             padding: 28px;
-            margin-top: 50px;
+            margin-top: 30px;
             margin-bottom: 61px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
         }
 
         /* ===== Detail Header ===== */
@@ -565,6 +694,10 @@
             .navbar .nav-links {
                 gap: 25px;
             }
+
+            .navbar-right {
+                margin-right: 1cm;
+            }
         }
 
         @@media (max-width: 768px) {
@@ -624,6 +757,10 @@
 
             .detail-header-price .price-value {
                 font-size: 1.5rem;
+            }
+
+            .navbar-right {
+                margin-right: 1cm;
             }
         }
 
@@ -704,6 +841,10 @@
                 justify-content: center;
                 width: 100%;
             }
+
+            .navbar-right {
+                margin-right: 0.5cm;
+            }
         }
     </style>
 </head>
@@ -713,16 +854,47 @@
     <nav class="navbar">
         <img class="logo" src="/image/hero.png" alt="SYRELIS" />
         <ul class="nav-links">
-            <li><a href="/">الرئيسية</a></li>
+            <li><a href="/Home/Index"><span class="link_span">الرئيسية</span></a></li>
             <li><a href="/Properties/Create">أعلن عن عقارك</a></li>
-            <li><a href="/Properties/MyFavorites">المفضلة</a></li>
-            <li><a href="/Properties/MyProperties">عقاراتي</a></li>
-            <li><a href="/#contactSection">تواصل معنا</a></li>
+            <li><a href="/Search/Index"><span class="link_span">ابحث عن عقارك</span></a></li>
+            <li><a href="/Properties/MyFavorites">حسابي</a></li>
+            <li><a href="/Home/Index#contactSection"><span class="link_span">تواصل معنا</span></a></li>
         </ul>
-        <button class="login-btn-nav" id="openModalBtn">تسجيل الدخول</button>
+        <div class="navbar-right">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var userName = User.Identity?.Name ?? "مستخدم";
+                var firstLetter = userName.Length > 0 ? userName[0].ToString().ToUpper() : "?";
+                <div class="user-avatar">
+                    @firstLetter
+                    <span class="tooltip">@userName</span>
+                </div>
+            }
+            else
+            {
+                <button class="login-btn-nav" id="openModalBtn">
+                    <i class="fas fa-sign-in-alt" style="margin-left: 6px;"></i> تسجيل الدخول
+                </button>
+            }
+        </div>
     </nav>
 
+    <!-- ====== المحتوى ====== -->
     <div class="container">
+
+        <!-- ====== Page Header ====== -->
+        <div class="page-header">
+            <div class="page-info">
+                <a href="/Properties/MyProperties" class="back-button">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <div class="page-title">
+                    <h1>تفاصيل العقار</h1>
+                    <p>جميع المعلومات والتفاصيل الكاملة للعقار</p>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
 
             <!-- ====== الهيدر ====== -->
@@ -943,49 +1115,49 @@
         // ====== الخريطة ======
         @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
         {
-                        <text>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            var mapContainer = document.getElementById('detailStaticMap');
-                            if (!mapContainer) return;
+                            <text>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var mapContainer = document.getElementById('detailStaticMap');
+                                if (!mapContainer) return;
 
-                            var map = L.map('detailStaticMap', {
-                                center: [@Model.Latitude.Value.ToString("F6"), @Model.Longitude.Value.ToString("F6")],
-                                zoom: 15,
-                                dragging: false,
-                                scrollWheelZoom: false,
-                                touchZoom: false,
-                                doubleClickZoom: false,
-                                boxZoom: false,
-                                keyboard: false,
-                                zoomControl: false,
-                                attributionControl: false
+                                var map = L.map('detailStaticMap', {
+                                    center: [@Model.Latitude.Value.ToString("F6"), @Model.Longitude.Value.ToString("F6")],
+                                    zoom: 15,
+                                    dragging: false,
+                                    scrollWheelZoom: false,
+                                    touchZoom: false,
+                                    doubleClickZoom: false,
+                                    boxZoom: false,
+                                    keyboard: false,
+                                    zoomControl: false,
+                                    attributionControl: false
+                                });
+
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    maxZoom: 19
+                                }).addTo(map);
+
+                                var pegmanSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 38" width="44" height="44">
+                                    <path d="M16.6 38.1h-5.5l-.2-2.9-.2 2.9H5.2L5 25.3l-.8 2a1.53 1.53 0 01-1.9.9l-1.2-.4a1.58 1.58 0 01-1-1.9v-.1c.3-.9 3.1-11.2 3.1-11.2a2.66 2.66 0 012.3-2l.6-.5a6.93 6.93 0 014.7-12 6.8 6.8 0 014.9 2 7 7 0 012 4.9 6.65 6.65 0 01-2.2 5l.7.5a2.78 2.78 0 012.4 2s2.9 11.2 2.9 11.3a1.53 1.53 0 01-.9 1.9l-1.3.4a1.63 1.63 0 01-1.9-.9l-.7-1.8z" fill="#333" opacity=".7"/>
+                                    <path d="m20.6 26.1-2.9-11.3a1.71 1.71 0 00-1.6-1.2H5.7a1.69 1.69 0 00-1.5 1.3L1.1 26.2a.61.61 0 00.3.7l1.1.4a.61.61 0 00.7-.3l2.7-6.7.2 16.8h3.6l.6-9.3a.47.47 0 01.44-.5h.06c.4 0 .4.2.5.5l.6 9.3h3.6l.2-16.8 2.5 6.6a.52.52 0 00.66.31l1.2-.4a.57.57 0 00.5-.7Z" fill="#fdbf2d"/>
+                                    <circle cx="10.9" cy="7" r="5.9" fill="#fdbf2d"/>
+                                </svg>`;
+
+                                var pegmanIcon = L.divIcon({
+                                    className: 'pegman-marker',
+                                    html: pegmanSVG,
+                                    iconSize: [44, 44],
+                                    iconAnchor: [22, 42]
+                                });
+
+                                L.marker([@Model.Latitude.Value.ToString("F6"), @Model.Longitude.Value.ToString("F6")], {
+                                    icon: pegmanIcon,
+                                    draggable: false
+                                }).addTo(map);
+
+                                setTimeout(function() { map.invalidateSize(); }, 300);
                             });
-
-                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                maxZoom: 19
-                            }).addTo(map);
-
-                            var pegmanSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 38" width="44" height="44">
-                                <path d="M16.6 38.1h-5.5l-.2-2.9-.2 2.9H5.2L5 25.3l-.8 2a1.53 1.53 0 01-1.9.9l-1.2-.4a1.58 1.58 0 01-1-1.9v-.1c.3-.9 3.1-11.2 3.1-11.2a2.66 2.66 0 012.3-2l.6-.5a6.93 6.93 0 014.7-12 6.8 6.8 0 014.9 2 7 7 0 012 4.9 6.65 6.65 0 01-2.2 5l.7.5a2.78 2.78 0 012.4 2s2.9 11.2 2.9 11.3a1.53 1.53 0 01-.9 1.9l-1.3.4a1.63 1.63 0 01-1.9-.9l-.7-1.8z" fill="#333" opacity=".7"/>
-                                <path d="m20.6 26.1-2.9-11.3a1.71 1.71 0 00-1.6-1.2H5.7a1.69 1.69 0 00-1.5 1.3L1.1 26.2a.61.61 0 00.3.7l1.1.4a.61.61 0 00.7-.3l2.7-6.7.2 16.8h3.6l.6-9.3a.47.47 0 01.44-.5h.06c.4 0 .4.2.5.5l.6 9.3h3.6l.2-16.8 2.5 6.6a.52.52 0 00.66.31l1.2-.4a.57.57 0 00.5-.7Z" fill="#fdbf2d"/>
-                                <circle cx="10.9" cy="7" r="5.9" fill="#fdbf2d"/>
-                            </svg>`;
-
-                            var pegmanIcon = L.divIcon({
-                                className: 'pegman-marker',
-                                html: pegmanSVG,
-                                iconSize: [44, 44],
-                                iconAnchor: [22, 42]
-                            });
-
-                            L.marker([@Model.Latitude.Value.ToString("F6"), @Model.Longitude.Value.ToString("F6")], {
-                                icon: pegmanIcon,
-                                draggable: false
-                            }).addTo(map);
-
-                            setTimeout(function() { map.invalidateSize(); }, 300);
-                        });
-                        </text>
+                            </text>
         }
 
         // ====== إضافة إلى المفضلة ======
