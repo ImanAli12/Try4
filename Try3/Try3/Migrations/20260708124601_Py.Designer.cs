@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RealEstateWebApp.Data;
 
@@ -11,9 +12,11 @@ using RealEstateWebApp.Data;
 namespace Try3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708124601_Py")]
+    partial class Py
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -485,87 +488,6 @@ namespace Try3.Migrations
                     b.ToTable("PropertyImages");
                 });
 
-            modelBuilder.Entity("RealEstateWebApp.Models.PropertyRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("MaxArea")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("MaxPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<byte?>("MaxRooms")
-                        .HasColumnType("tinyint");
-
-                    b.Property<decimal?>("MinArea")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("MinPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<byte?>("MinRooms")
-                        .HasColumnType("tinyint");
-
-                    b.Property<string>("Neighborhood")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("PropertyTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CityId");
-
-                    b.HasIndex("PropertyTypeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PropertyRequests");
-                });
-
             modelBuilder.Entity("RealEstateWebApp.Models.PropertyType", b =>
                 {
                     b.Property<int>("Id")
@@ -584,7 +506,7 @@ namespace Try3.Migrations
                     b.ToTable("PropertyTypes");
                 });
 
-            modelBuilder.Entity("RealEstateWebApp.Models.SimilarProperty", b =>
+            modelBuilder.Entity("Try3.Models.SimilarProperty", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -594,21 +516,19 @@ namespace Try3.Migrations
 
                     b.Property<string>("PropertyCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("property_code");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("RankOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("rank_order");
+                        .HasColumnType("int");
 
                     b.Property<string>("SimilarPropertyCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("similar_property_code");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<double>("SimilarityScore")
-                        .HasColumnType("float")
-                        .HasColumnName("similarity_score");
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -758,33 +678,6 @@ namespace Try3.Migrations
                         .IsRequired();
 
                     b.Navigation("Property");
-                });
-
-            modelBuilder.Entity("RealEstateWebApp.Models.PropertyRequest", b =>
-                {
-                    b.HasOne("RealEstateWebApp.Models.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RealEstateWebApp.Models.PropertyType", "PropertyType")
-                        .WithMany()
-                        .HasForeignKey("PropertyTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RealEstateWebApp.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("City");
-
-                    b.Navigation("PropertyType");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RealEstateWebApp.Models.ApplicationUser", b =>

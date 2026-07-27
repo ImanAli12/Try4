@@ -7,7 +7,6 @@ using RealEstateWebApp.Models;
 
 namespace RealEstateWebApp.Controllers
 {
-  
     public class PropertiesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -42,7 +41,6 @@ namespace RealEstateWebApp.Controllers
             return View(viewModel);
         }
 
-        // POST: Properties/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PropertyViewModel viewModel)

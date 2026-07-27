@@ -11,33 +11,36 @@
         <div class="property-grid">
             @foreach (var property in Model)
             {
-                // الحصول على الصورة الرئيسية
                 var mainImage = property.Images?.FirstOrDefault(i => i.IsMain) ?? property.Images?.FirstOrDefault();
                 var imageUrl = mainImage?.ImageUrl ?? "/image/default-property.jpg";
 
-                <div class="property-card">
-                    <div class="property-img">
-                        <img src="@imageUrl" alt="@property.Title" />
-                        <span class="property-badge sale">@property.Status</span>
-                    </div>
-                    <div class="property-body">
-                        <div class="property-price">@property.Price.ToString("N0") @property.PriceCurrency</div>
-                        <div class="property-title">@property.Title</div>
-                        <div class="property-location">
-                            <i class="fa-solid fa-location-dot"></i>
-                            @(property.City?.NameAr ?? "") - @(property.Neighborhood?? "")
+                <!-- ✅ رابط يحيط بالبطاقة وينقل إلى صفحة التفاصيل -->
+                <a href="@Url.Action("Details", "Properties", new { code = property.Code })"
+                   style="text-decoration: none; color: inherit; display: block;">
+                    <div class="property-card">
+                        <div class="property-img">
+                            <img src="@imageUrl" alt="@property.Title" />
+                            <span class="property-badge sale">@property.Status</span>
                         </div>
-                        <div class="property-features">
-                            <span><i class="fa-solid fa-vector-square"></i> @property.Area م²</span>
-                            <span><i class="fa-solid fa-bed"></i> @property.Rooms غرف</span>
-                            <span><i class="fa-solid fa-bath"></i> @property.Bathrooms حمامات</span>
-                            @if (property.Floor.HasValue)
-                            {
-                                <span><i class="fa-solid fa-layer-group"></i> طابق @property.Floor</span>
-                            }
+                        <div class="property-body">
+                            <div class="property-price">@property.Price.ToString("N0") @property.PriceCurrency</div>
+                            <div class="property-title">@property.Title</div>
+                            <div class="property-location">
+                                <i class="fa-solid fa-location-dot"></i>
+                                @(property.City?.NameAr ?? "") - @(property.Neighborhood ?? "")
+                            </div>
+                            <div class="property-features">
+                                <span><i class="fa-solid fa-vector-square"></i> @property.Area م²</span>
+                                <span><i class="fa-solid fa-bed"></i> @property.Rooms غرف</span>
+                                <span><i class="fa-solid fa-bath"></i> @property.Bathrooms حمامات</span>
+                                @if (property.Floor.HasValue)
+                                {
+                                    <span><i class="fa-solid fa-layer-group"></i> طابق @property.Floor</span>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             }
         </div>
     </div>
@@ -49,6 +52,10 @@ else
             <i class="fa-regular fa-face-frown"></i>
             <h3>لا توجد نتائج</h3>
             <p>لم نعثر على عقارات تطابق معايير البحث. حاول تعديل الفلاتر.</p>
+            @if (!string.IsNullOrEmpty(ViewBag.NoDataMessage))
+            {
+                <p style="color:#d4af37; margin-top:8px;">💡 @ViewBag.NoDataMessage</p>
+            }
         </div>
     </div>
 }

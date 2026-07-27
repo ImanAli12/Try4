@@ -27,6 +27,7 @@ namespace RealEstateWebApp.Controllers
             return View();
         }
 
+        // ===== تنفيذ البحث (AJAX) =====
         [HttpGet]
         public async Task<IActionResult> Search(
             int? propertyTypeId,
@@ -35,7 +36,7 @@ namespace RealEstateWebApp.Controllers
             string? neighborhood,
             decimal? minPrice,
             decimal? maxPrice,
-            string? currency,
+           
             decimal? minArea,
             decimal? maxArea,
             byte? rooms,
@@ -43,21 +44,46 @@ namespace RealEstateWebApp.Controllers
             short? floor,
             short? totalFloors)
         {
-            var query = _context.Properties
-                .Include(p => p.City)
-                .Include(p => p.Neighborhood)
-                .Include(p => p.PropertyType)
-                .Include(p => p.Images)
-                .Where(p => p.IsActive == true && p.Status == "للبيع");
+            try
+            {
+                // 1. الاستعلام الأساسي (جميع العقارات النشطة)
+                var query = _context.Properties
+                    .Include(p => p.City)
+                    .Where(p => p.IsActive == true);
 
-            if (propertyTypeId.HasValue && propertyTypeId.Value > 0)
-                query = query.Where(p => p.PropertyTypeId == propertyTypeId.Value);
+                // 2. تطبيق الفلاتر (فقط إذا كان المستخدم قد أدخل قيمة)
+                if (cityId.HasValue && cityId.Value > 0)
+                    query = query.Where(p => p.CityId == cityId.Value);
 
-            if (cityId.HasValue && cityId.Value > 0)
-                query = query.Where(p => p.CityId == cityId.Value);
+                if (propertyTypeId.HasValue && propertyTypeId.Value > 0)
+                    query = query.Where(p => p.PropertyTypeId == propertyTypeId.Value);
 
-            if (!string.IsNullOrWhiteSpace(neighborhood))
-                query = query.Where(p => p.Neighborhood != null && p.Neighborhood.Contains(neighborhood));
+               
+                // 3. جلب أول 10 نتائج مع الصورة الرئيسية فقط
+                var results = await query
+                    .OrderBy(p => p.Price)
+                    .Take(10)
+                    .Select(p => new Property
+                    {
+                        Id = p.Id,
+                        Code = p.Code,
+                        Title = p.Title,
+                        Price = p.Price,
+                        PriceCurrency = p.PriceCurrency,
+                        Area = p.Area,
+                        Rooms = p.Rooms,
+                        Bathrooms = p.Bathrooms,
+                        Floor = p.Floor,
+                        Status = p.Status,
+                        CityId = p.CityId,
+                        City = p.City != null ? new City { Id = p.City.Id, NameAr = p.City.NameAr } : null,
+                        Neighborhood = p.Neighborhood,
+                        Description = p.Description,
+                        CreatedAt = p.CreatedAt,
+                        IsActive = p.IsActive,
+                      
+                    })
+                    .ToListAsync();
 
             if (minPrice.HasValue)
                 query = query.Where(p => p.Price >= minPrice.Value);

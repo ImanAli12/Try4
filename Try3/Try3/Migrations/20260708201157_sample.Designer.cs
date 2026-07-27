@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RealEstateWebApp.Data;
 
@@ -11,9 +12,11 @@ using RealEstateWebApp.Data;
 namespace Try3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708201157_sample")]
+    partial class sample
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -478,14 +481,19 @@ namespace Try3.Migrations
                     b.Property<int>("PropertyId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PropertySampleId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PropertyId");
 
+                    b.HasIndex("PropertySampleId");
+
                     b.ToTable("PropertyImages");
                 });
 
-            modelBuilder.Entity("RealEstateWebApp.Models.PropertyRequest", b =>
+            modelBuilder.Entity("RealEstateWebApp.Models.PropertySample", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -493,8 +501,33 @@ namespace Try3.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("AdvertiserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AdvertiserPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Area")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("AvailableFrom")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte>("Bathrooms")
+                        .HasColumnType("tinyint");
+
                     b.Property<int>("CityId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -502,44 +535,38 @@ namespace Try3.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("DetailedLocation")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("datetime2");
+                    b.Property<short?>("Floor")
+                        .HasColumnType("smallint");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<decimal?>("MaxArea")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
 
-                    b.Property<decimal?>("MaxPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<byte?>("MaxRooms")
-                        .HasColumnType("tinyint");
-
-                    b.Property<decimal?>("MinArea")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("MinPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<byte?>("MinRooms")
-                        .HasColumnType("tinyint");
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("Neighborhood")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PhoneNumber")
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("PriceCurrency")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("PropertyTypeId")
                         .HasColumnType("int");
+
+                    b.Property<byte>("Rooms")
+                        .HasColumnType("tinyint");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -548,22 +575,21 @@ namespace Try3.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("ViewsCount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AdvertiserId");
 
                     b.HasIndex("CityId");
 
                     b.HasIndex("PropertyTypeId");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PropertyRequests");
+                    b.ToTable("PropertiesSample");
                 });
 
             modelBuilder.Entity("RealEstateWebApp.Models.PropertyType", b =>
@@ -757,11 +783,21 @@ namespace Try3.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RealEstateWebApp.Models.PropertySample", null)
+                        .WithMany("Images")
+                        .HasForeignKey("PropertySampleId");
+
                     b.Navigation("Property");
                 });
 
-            modelBuilder.Entity("RealEstateWebApp.Models.PropertyRequest", b =>
+            modelBuilder.Entity("RealEstateWebApp.Models.PropertySample", b =>
                 {
+                    b.HasOne("RealEstateWebApp.Models.ApplicationUser", "Advertiser")
+                        .WithMany()
+                        .HasForeignKey("AdvertiserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("RealEstateWebApp.Models.City", "City")
                         .WithMany()
                         .HasForeignKey("CityId")
@@ -774,17 +810,11 @@ namespace Try3.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RealEstateWebApp.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Advertiser");
 
                     b.Navigation("City");
 
                     b.Navigation("PropertyType");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RealEstateWebApp.Models.ApplicationUser", b =>
@@ -815,6 +845,11 @@ namespace Try3.Migrations
                 {
                     b.Navigation("Favorites");
 
+                    b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("RealEstateWebApp.Models.PropertySample", b =>
+                {
                     b.Navigation("Images");
                 });
 

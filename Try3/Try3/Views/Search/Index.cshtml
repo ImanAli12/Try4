@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ابحث عن عقار | SYRELIS - العقارات الفاخرة</title>
+    <title>ابحث عن عقار | SYRELIS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -753,7 +753,7 @@
 </head>
 <body>
 
-    <!-- ========== شريط التنقل ========== -->
+    <!-- ===== شريط التنقل ===== -->
     <nav class="navbar">
         <img class="logo" src="~/image/hero.png" alt="SYRELIS" />
         <ul class="nav-links">
@@ -769,16 +769,11 @@
                 var userName = User.Identity?.Name ?? "مستخدم";
                 var firstLetter = userName.Length > 0 ? userName[0].ToString().ToUpper() : "?";
                 <div class="user-avatar" title="@userName">
-                    @firstLetter
-                    <span class="tooltip">@userName</span>
+                 
+                    
                 </div>
             }
-            else
-            {
-                <button class="login-btn-nav" id="openModalBtn">
-                    <i class="fas fa-sign-in-alt" style="margin-left: 6px;"></i> تسجيل الدخول
-                </button>
-            }
+           
         </div>
     </nav>
 
@@ -844,7 +839,7 @@
                         </select>
                     </div>
 
-                    <!-- الحي -->
+                    <!-- ✅ الحي (حقل نصي) -->
                     <div class="form-group">
                         <label><i class="fa-solid fa-location-dot"></i> الحي / المنطقة</label>
                         <input type="text" class="form-control" id="searchNeighborhood" placeholder="مثال: المالكي، الشعلان..." />
@@ -935,61 +930,8 @@
         <div id="resultsContainer"></div>
     </div>
 
-    <!-- ===== مودال تسجيل الدخول ===== -->
-    <div id="authModal" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <button class="close-modal" id="closeModalBtn">&times;</button>
-                <div class="logo-icon">
-                    <img class="logo_loin" src="~/image/logo_loin.png" alt="" />
-                </div>
-                <h2 id="modalTitle">SYRELIS</h2>
-                <p id="modalSubtitle">سجل دخولك للوصول إلى حسابك</p>
-            </div>
-            <div class="modal-body">
-                <div id="messageBox" class="message"></div>
+   
 
-                <div id="loginPanel">
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" />
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="كلمة المرور ( 8 خانات )" />
-                    </div>
-                    <button class="auth-btn" id="doLoginBtn">
-                        <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
-                    </button>
-                    <div class="toggle-auth">
-                        ليس لديك حساب؟ <a id="switchToSignupBtn">إنشاء حساب جديد</a>
-                    </div>
-                </div>
-
-                <div id="signupPanel" style="display: none">
-                    <div class="input-group">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="signupName" placeholder="الاسم الكامل" />
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" />
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="signupPassword" placeholder="كلمة المرور ( 8 خانات )" />
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-check-circle"></i>
-                        <input type="password" id="signupConfirm" placeholder="تأكيد كلمة المرور" />
-                    </div>
-                    <button class="auth-btn" id="doSignupBtn">
-                        <i class="fas fa-user-plus"></i> إنشاء حساب
-                    </button>
-                    <div class="toggle-auth">
-                        لديك حساب؟ <a id="switchToLoginBtn">تسجيل الدخول</a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

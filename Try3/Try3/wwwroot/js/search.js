@@ -1,6 +1,6 @@
 // ============================================================
 // 📁 الملف: wwwroot/js/search.js
-// ✅ خاص بصفحة البحث عن العقارات + دعم السعر والمساحة (من-إلى)
+// ✅ خاص بصفحة البحث عن العقارات
 // ============================================================
 
 console.log("✅ search.js تم تحميله بنجاح!");
@@ -288,6 +288,7 @@ $(document).ready(function () {
 
     // ============================================================
     // البحث (يدعم min/max للسعر والمساحة)
+    // ✅ تم التعديل: استخدام neighborhood كنص بدلاً من neighborhoodId
     // ============================================================
     $('#searchForm').on('submit', function (e) {
         e.preventDefault();
@@ -306,12 +307,12 @@ $(document).ready(function () {
             return;
         }
 
-        // جمع البيانات مع دعم min/max
+        // جمع البيانات
         const params = new URLSearchParams({
             propertyTypeId: $('#searchType').val(),
             status: $('#searchStatus').val(),
             cityId: $('#searchCity').val(),
-            neighborhood: $('#searchNeighborhood').val(),
+            neighborhood: $('#searchNeighborhood').val(), // ✅ تغيير إلى neighborhood
             minPrice: $('#searchMinPrice').val(),
             maxPrice: $('#searchMaxPrice').val(),
             currency: $('#searchCurrency').val(),
@@ -351,6 +352,5 @@ $(document).ready(function () {
             });
     });
 
-    console.log("✅ search.js جاهز بالكامل مع دعم min/max للسعر والمساحة!");
+    console.log("✅ search.js جاهز بالكامل!");
 });
-
