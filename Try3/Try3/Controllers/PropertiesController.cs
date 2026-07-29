@@ -499,5 +499,54 @@ namespace RealEstateWebApp.Controllers
             return View(properties);
         }
 
+        // ============================================================
+        // DETAIL SEARCH (البحث عن عقار بواسطة الكود)
+        // ============================================================
+        [HttpGet]
+        public async Task<IActionResult> DetailSearch(string code)
+        {
+            
+                if (string.IsNullOrEmpty(code))
+                    return NotFound();
+
+                var property = await _context.Properties
+                    .Include(p => p.City)
+                    .Include(p => p.PropertyType)
+                    .Include(p => p.Images)
+                    .FirstOrDefaultAsync(p => p.Code == code);
+
+                if (property == null)
+                    return NotFound();
+
+                // ==========================================================
+                // ✅ جلب العقارات المشابهة من جدول SimilarProperties
+                // ==========================================================
+                var similarCodes = await _context.SimilarProperties
+                    .Where(sp => sp.PropertyCode == code)
+                    .OrderBy(sp => sp.RankOrder)
+                    .Select(sp => sp.SimilarPropertyCode)
+                    .Take(10)
+                    .ToListAsync();
+
+                var similarProperties = await _context.Properties
+                    .Include(p => p.City)
+                    .Include(p => p.PropertyType)
+                    .Include(p => p.Images)
+                    .Where(p => similarCodes.Contains(p.Code))
+                    .ToListAsync();
+
+                // ✅ ترتيب النتائج حسب RankOrder
+                var orderedSimilar = similarProperties
+                    .Select(p => new { Property = p, Index = similarCodes.IndexOf(p.Code) })
+                    .Where(x => x.Index >= 0)
+                    .OrderBy(x => x.Index)
+                    .Select(x => x.Property)
+                    .ToList();
+
+                ViewBag.SimilarProperties = orderedSimilar;
+
+                return View(property);
+            }
+        }
+
     }
-}

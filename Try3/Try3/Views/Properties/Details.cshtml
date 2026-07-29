@@ -4,6 +4,11 @@
 @{
     ViewData["Title"] = "تفاصيل العقار";
     Layout = null;
+    // ✅ الترتيب من الأرخص إلى الأعلى، وعرض أول 10 فقط
+    var similar = (ViewBag.SimilarProperties as List<RealEstateWebApp.Models.Property> ?? new List<RealEstateWebApp.Models.Property>())
+        .OrderBy(p => p.Price)
+        .Take(10)
+        .ToList();
 }
 <!-- للتأكد من الـ ID -->
 @Html.AntiForgeryToken()

@@ -15,7 +15,7 @@
                 var imageUrl = mainImage?.ImageUrl ?? "/image/default-property.jpg";
 
                 <!-- ✅ رابط يحيط بالبطاقة وينقل إلى صفحة التفاصيل -->
-                <a href="@Url.Action("Details", "Properties", new { code = property.Code })"
+                <a href="@Url.Action("DetailSearch", "Properties", new { code = property.Code })"
                    style="text-decoration: none; color: inherit; display: block;">
                     <div class="property-card">
                         <div class="property-img">

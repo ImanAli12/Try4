@@ -13,6 +13,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<City> Cities => Set<City>();
     public DbSet<Neighborhood> Neighborhoods => Set<Neighborhood>();
+
+    public DbSet<SimilarProperty> SimilarProperties { get; set; }
     public DbSet<PropertyType> PropertyTypes => Set<PropertyType>();
     public DbSet<Property> Properties => Set<Property>();
     public DbSet<PropertyImage> PropertyImages => Set<PropertyImage>();
