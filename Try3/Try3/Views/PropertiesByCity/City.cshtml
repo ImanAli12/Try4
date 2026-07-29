@@ -1,0 +1,1235 @@
+﻿@model List<RealEstateWebApp.Models.Property>
+@using RealEstateWebApp.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = $"عقارات - {ViewBag.CityName}";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | SYRELIS</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --dark: #0b1320;
+            --gold: #b29023;
+            --gray: #353a44;
+            --white: #ffffff;
+            --gold-light: #f4e5c2;
+            --gold-dark: #b8941f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(126deg, rgba(11, 19, 32, 0.92), rgb(11 19 32 / 72%)), url(https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format);
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 133vh;
+            font-family: "Tajawal", sans-serif;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ===== Navbar ===== */
+        .navbar {
+            background: rgba(11, 19, 32, 0.96);
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .navbar .logo {
+                width: 82px;
+                margin: 8px 0;
+                flex-shrink: 0;
+            }
+
+            .navbar .nav-links {
+                display: flex;
+                gap: 30px;
+                list-style: none;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+            }
+
+                .navbar .nav-links a {
+                    color: #f2efea;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    transition: 0.3s;
+                    white-space: nowrap;
+                }
+
+                    .navbar .nav-links a:hover {
+                        color: #d4af37;
+                    }
+
+            .navbar .login-btn-nav {
+                background: transparent;
+                border: 1.5px dashed #d4af37;
+                color: #d4af37;
+                padding: 10px 22px;
+                border-radius: 40px;
+                font-weight: 700;
+                font-size: 0.9rem;
+                font-family: "Tajawal", sans-serif;
+                cursor: pointer;
+                transition: all 0.3s;
+                flex-shrink: 0;
+            }
+
+                .navbar .login-btn-nav:hover {
+                    background: #d4af37;
+                    border: 1px solid rgb(50, 39, 11);
+                    color: #0b1320;
+                }
+
+                .navbar .login-btn-nav.logout-active {
+                    color: #d4af37;
+                    border: 1.5px solid #d4af37;
+                }
+
+                    .navbar .login-btn-nav.logout-active:hover {
+                        background: #d4af37;
+                        color: #0b1320;
+                    }
+
+        /* ===== Province Header ===== */
+        .province-header {
+            padding: 30px 35px;
+            margin-top: 33px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(11, 19, 32, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .province-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .province-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #bc9a2d;
+            border: 3px solid #cac3bc;
+        }
+
+        .province-title h1 {
+            color: #d4af37 !important;
+            margin: 0;
+        }
+
+        .province-title p {
+            color: rgba(255,255,255,0.8);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            border: 2px solid var(--white);
+            border-radius: 12px;
+            color: var(--dark);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+            .back-button:hover {
+                transform: translateX(5px);
+                box-shadow: 0 6px 16px rgba(212,175,55,0.5);
+            }
+
+        /* ===== Grid ===== */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+        }
+
+        /* ===== Property Card ===== */
+        .property-card {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0px 0px 0px 0.7px rgb(24 35 55 / 56%), 0px 10px 30px -5px rgba(0,0,0,0.5);
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+            background: #ffffff;
+        }
+
+            .property-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .property-image {
+            position: relative;
+            height: 280px;
+            overflow: hidden;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(11,19,32,0.4);
+            transition: opacity 0.5s ease;
+            z-index: 1;
+        }
+
+        .property-card:hover .overlay {
+            opacity: 0;
+        }
+
+        .property-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .property-card:hover .property-image img {
+            transform: scale(1.05);
+        }
+
+        .property-content {
+            position: relative;
+            padding: 25px;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+
+        .property-title {
+            font-size: 21px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: #1e2f4f;
+        }
+
+        .property-price {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid rgba(212,175,55,0.3);
+        }
+
+        .price-original {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0b1320;
+        }
+
+        .property-location {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+            .property-location i {
+                margin-left: 10px;
+                color: #b29023;
+                font-size: 16px;
+            }
+
+        .property-type {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+            .property-type i {
+                margin-left: 10px;
+                color: var(--gold);
+                font-size: 16px;
+            }
+
+        .property-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+            .property-meta span {
+                display: flex;
+                align-items: center;
+            }
+
+            .property-meta i {
+                margin-left: 8px;
+                color: var(--gold);
+            }
+
+        .property-footer {
+            background: linear-gradient(135deg, var(--dark) 0%, #1a253a 100%);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--white);
+            border-top: 3px solid var(--gold);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+            .footer-item i {
+                margin-left: 10px;
+                font-size: 18px;
+                color: var(--gold);
+            }
+
+        .footer-features {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            position: absolute;
+            padding: 8px 25px;
+            font-size: 13px;
+            font-weight: 700;
+            z-index: 3;
+            border-radius: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.968);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: max-content;
+        }
+
+        .badge-for-sale {
+            clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%);
+            top: 15px;
+            right: 0px;
+            background: #059669;
+            color: var(--white);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+            .badge-for-sale::before {
+                content: "\f29d";
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+            }
+
+        .btn-favorite {
+            background: linear-gradient(207deg, #0d2243, #3d6c9a73);
+            color: #d7d8d9;
+            border: 1px solid #ffffff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: "Tajawal", sans-serif;
+        }
+
+            .btn-favorite:hover {
+                background: #d4af37;
+                color: #0b1320;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(212,175,55,0.3);
+            }
+
+            .btn-favorite.added {
+                background: #d4af37;
+                color: #172c48;
+            }
+
+            .btn-favorite i {
+                font-size: 0.9rem;
+            }
+
+        /* ===== المودالات ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+            .modal-overlay.active {
+                visibility: visible;
+                opacity: 1;
+            }
+
+        .modal-card {
+            background: linear-gradient(145deg, #e6e9f8);
+            max-width: 440px;
+            width: 90%;
+            border-radius: 25px;
+            position: relative;
+            transform: scale(0.95);
+            transition: 0.3s;
+            box-shadow: 0 40px 70px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0b1320, #1a2a3e);
+            padding: 27px 0 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-icon {
+            position: relative;
+        }
+
+        .logo_loin {
+            top: -21%;
+            right: -70%;
+            position: absolute;
+            width: 136px;
+        }
+
+        .modal-header h2 {
+            font-family: "Cinzel", serif;
+            font-size: 1.6rem;
+            color: #d6cb85;
+        }
+
+        .modal-header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 18px;
+            left: 25rem;
+            font-size: 31px;
+            cursor: pointer;
+            color: #d7d5aa;
+            background: none;
+            border: none;
+        }
+
+        .modal-body {
+            padding: 8px 30px 30px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+            .input-group i {
+                position: absolute;
+                right: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #d4af37;
+            }
+
+            .input-group input {
+                width: 100%;
+                padding: 14px 45px 14px 20px;
+                border: 1.5px solid #e8e8ec;
+                border-radius: 60px;
+                font-size: 0.9rem;
+                font-family: "Tajawal", sans-serif;
+                background: #f9f9fc;
+            }
+
+                .input-group input:focus {
+                    outline: none;
+                    border-color: #d4af37;
+                    box-shadow: 0 0 0 3px rgba(212,175,55,0.2);
+                }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0b1320, #1a2a3e);
+            border: 1px solid #d4af37;
+            border-radius: 60px;
+            color: #d4af37;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+            .auth-btn:hover {
+                background: #d4af37;
+                color: #0b1320;
+            }
+
+        .toggle-auth {
+            padding-top: 33px;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+            .toggle-auth a {
+                color: #d4af37;
+                font-weight: 800;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+            text-align: center;
+            display: none;
+        }
+
+            .message.error {
+                background: #fee2e2;
+                color: #dc2626;
+                display: block;
+            }
+
+            .message.success {
+                background: #d1fae5;
+                color: #059669;
+                display: block;
+            }
+
+        /* ===== Empty State ===== */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 2px dashed rgba(212,175,55,0.3);
+        }
+
+            .empty-state i {
+                font-size: 60px;
+                color: var(--gold);
+                margin-bottom: 20px;
+                display: block;
+            }
+
+            .empty-state h2 {
+                color: var(--gold-light);
+                margin-bottom: 15px;
+            }
+
+            .empty-state p {
+                color: rgba(255,255,255,0.7);
+                font-size: 18px;
+            }
+        /* ===== زر التفاصيل ===== */
+        .btn-details {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a253a 100%);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: "Tajawal", sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+            .btn-details:hover {
+                background: var(--gold);
+                color: var(--dark);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+            }
+
+            .btn-details i {
+                font-size: 0.9rem;
+            }
+        /* ===== Responsive ===== */
+        @@media (max-width: 992px) {
+            .navbar .nav-links {
+                gap: 25px;
+            }
+
+            .properties-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+            }
+
+            .close-modal {
+                left: 20rem;
+            }
+
+            .logo_loin {
+                right: -50%;
+                width: 100px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+                .navbar .logo {
+                    width: 50px;
+                }
+
+                .navbar .nav-links {
+                    gap: 15px;
+                }
+
+                    .navbar .nav-links a {
+                        font-size: 0.8rem;
+                    }
+
+                .navbar .login-btn-nav {
+                    padding: 8px 16px;
+                    font-size: 0.75rem;
+                }
+
+            .province-header {
+                padding: 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .province-info {
+                flex-direction: column;
+            }
+
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .property-image {
+                height: 220px;
+            }
+
+            .property-content {
+                padding: 18px;
+            }
+
+            .property-title {
+                font-size: 18px;
+            }
+
+            .property-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .footer-features {
+                justify-content: center;
+            }
+
+            .btn-favorite {
+                justify-content: center;
+            }
+
+            .close-modal {
+                top: 12px;
+                left: 12rem;
+                font-size: 26px;
+            }
+
+            .logo_loin {
+                display: none;
+            }
+
+            .modal-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .modal-body {
+                padding: 8px 18px 20px;
+            }
+
+            .input-group input {
+                padding: 12px 40px 12px 16px;
+                font-size: 0.85rem;
+            }
+
+            .auth-btn {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .navbar .nav-links {
+                gap: 8px;
+            }
+
+                .navbar .nav-links a {
+                    font-size: 0.7rem;
+                }
+
+            .navbar .login-btn-nav {
+                padding: 6px 12px;
+                font-size: 0.7rem;
+            }
+
+            .province-title h1 {
+                font-size: 1.2rem;
+            }
+
+            .property-title {
+                font-size: 16px;
+            }
+
+            .price-original {
+                font-size: 13px;
+            }
+
+            .btn-favorite {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+
+            .close-modal {
+                left: 8rem;
+                font-size: 22px;
+            }
+
+            .modal-card {
+                max-width: 340px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.1rem;
+            }
+
+            .modal-header p {
+                font-size: 0.7rem;
+            }
+
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Navbar ===== -->
+    <nav class="navbar">
+        <img class="logo" src="~/image/hero.png" alt="SYRELIS" />
+        <ul class="nav-links">
+            <li><a href="@Url.Action("Index", "Home")">الرئيسية</a></li>
+            <li><a href="@Url.Action("Create", "Properties")">أعلن عن عقارك</a></li>
+            <li><a href="@Url.Action("Index", "Search")">ابحث عن عقارك</a></li>
+            <li><a href="@Url.Action("Index", "MyFavorites")">حسابي</a></li>
+            <li><a href="@Url.Action("Index", "Home")#contactSection">تواصل معنا</a></li>
+        </ul>
+        <button class="login-btn-nav" id="openModalBtn">تسجيل الدخول</button>
+    </nav>
+
+    <!-- ===== المحتوى ===== -->
+    <div class="container">
+        <div class="province-header">
+            <div class="province-info">
+                <a href="@Url.Action("Index", "Home")" class="back-button"><i class="fas fa-arrow-right"></i></a>
+                <div class="province-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <div class="province-title">
+                    <h1 id="provinceName">@ViewBag.CityName</h1>
+                    <p id="provinceSubtitle">@ViewBag.PropertyCount عقار للبيع</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="properties-grid" id="propertiesGrid">
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var property in Model)
+                {
+                    var mainImage = property.Images?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/image/default.jpg";
+                    var rooms = property.Rooms > 0 ? $"{property.Rooms} غرف" : "-";
+                    var baths = property.Bathrooms > 0 ? $"{property.Bathrooms} حمامات" : "-";
+                    var area = property.Area > 0 ? $"{property.Area} م²" : "-";
+
+                    <div class="property-card" data-id="@property.Id">
+                        <div class="property-image">
+                            <span class="badge badge-for-sale">للبيع</span>
+                            <div class="overlay"></div>
+                            <img src="@mainImage" alt="@property.Title" loading="lazy" onerror="this.src='/image/default.jpg'" />
+                        </div>
+                        <div class="property-content">
+                            <h3 class="property-title">@property.Title</h3>
+                            <div class="property-price">
+                                <span class="price-original">@property.Price.ToString("N0") @property.PriceCurrency</span>
+                            </div>
+                            <div class="property-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>@(property.City?.NameAr ?? "-")، @property.Neighborhood</span>
+                            </div>
+                            <div class="property-type">
+                                <i class="fas fa-building"></i>
+                                <span>@(property.PropertyType?.NameAr ?? "-")</span>
+                            </div>
+                            <div class="property-meta">
+                                <span><i class="fas fa-user"></i> @(property.Advertiser?.FullName ?? "معلن")</span>
+                                <span><i class="fas fa-calendar"></i> @property.CreatedAt.ToString("yyyy/MM/dd")</span>
+                            </div>
+                        </div>
+                        <div class="property-footer">
+                            <div class="footer-features">
+                                <div class="footer-item">
+                                    <i class="fas fa-door-open"></i> @rooms
+                                </div>
+                                <div class="footer-item">
+                                    <i class="fas fa-ruler-combined"></i> @area
+                                </div>
+                                <div class="footer-item">
+                                    <i class="fas fa-bath"></i> @baths
+                                </div>
+                            </div>
+                            <a href="@Url.Action("Details", "Properties", new { id = property.Id })" class="btn-details">
+                                <i class="fas fa-info-circle"></i> تفاصيل
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-building"></i>
+                    <h2>لا توجد عقارات في @ViewBag.CityName</h2>
+                    <p>سيتم إضافة عقارات جديدة قريباً</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ===== مودال تسجيل الدخول ===== -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+                <div class="logo-icon"><img class="logo_loin" src="~/image/logo_loin.png" alt="" /></div>
+                <h2 id="modalTitle">SYRELIS</h2>
+                <p id="modalSubtitle">سجل دخولك للوصول إلى حسابك</p>
+            </div>
+            <div class="modal-body">
+                <div id="messageBox" class="message"></div>
+                <div id="loginPanel">
+                    <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="loginEmail" placeholder="البريد الإلكتروني" /></div>
+                    <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="كلمة المرور ( 8 خانات )" /></div>
+                    <button class="auth-btn" id="doLoginBtn"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</button>
+                    <div class="toggle-auth">ليس لديك حساب؟ <a id="switchToSignupBtn">إنشاء حساب جديد</a></div>
+                </div>
+                <div id="signupPanel" style="display:none;">
+                    <div class="input-group"><i class="fas fa-user"></i><input type="text" id="signupName" placeholder="الاسم الكامل" /></div>
+                    <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="signupEmail" placeholder="البريد الإلكتروني" /></div>
+                    <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="signupPassword" placeholder="كلمة المرور ( 8 خانات )" /></div>
+                    <div class="input-group"><i class="fas fa-check-circle"></i><input type="password" id="signupConfirm" placeholder="تأكيد كلمة المرور" /></div>
+                    <button class="auth-btn" id="doSignupBtn"><i class="fas fa-user-plus"></i> إنشاء حساب</button>
+                    <div class="toggle-auth">لديك حساب؟ <a id="switchToLoginBtn">تسجيل الدخول</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== مودال "يجب تسجيل الدخول" ===== -->
+    <div id="loginRequiredModal" class="modal-overlay login-required-modal">
+        <div class="modal-card">
+            <button class="close-modal" id="closeRequiredModalBtn" style="top:18px;left:26.7rem;color:#1a2c44;">&times;</button>
+            <div class="login-required-icon"><i class="fas fa-lock"></i></div>
+            <h2 class="login-required-title">يجب تسجيل الدخول أولاً</h2>
+            <p class="login-required-text" id="loginRequiredText">للوصول إلى هذه الصفحة، يجب أن تكون مسجلاً دخولك في حسابك.<br />سجّل دخولك الآن واستمتع بجميع خدماتنا!</p>
+            <div class="login-required-buttons">
+                <button class="btn-cancel" id="cancelRequiredBtn"><i class="fas fa-times"></i> إلغاء</button>
+                <button class="btn-login-now" id="goToLoginBtn"><i class="fas fa-sign-in-alt"></i> سجل دخولك الآن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Scripts ===== -->
+    <script>
+        // ===== المتغيرات =====
+        var isLoggedIn = localStorage.getItem("syrelis_logged_in") === "true";
+        var currentCity = "@ViewBag.CityName";
+
+        // ===== عناصر DOM =====
+        var openModalBtn = document.getElementById("openModalBtn");
+        var authModal = document.getElementById("authModal");
+        var closeModalBtn = document.getElementById("closeModalBtn");
+        var loginPanel = document.getElementById("loginPanel");
+        var signupPanel = document.getElementById("signupPanel");
+        var switchToSignup = document.getElementById("switchToSignupBtn");
+        var switchToLogin = document.getElementById("switchToLoginBtn");
+        var doLoginBtn = document.getElementById("doLoginBtn");
+        var doSignupBtn = document.getElementById("doSignupBtn");
+        var loginEmail = document.getElementById("loginEmail");
+        var loginPassword = document.getElementById("loginPassword");
+        var signupName = document.getElementById("signupName");
+        var signupEmail = document.getElementById("signupEmail");
+        var signupPassword = document.getElementById("signupPassword");
+        var signupConfirm = document.getElementById("signupConfirm");
+        var messageBox = document.getElementById("messageBox");
+        var loginRequiredModal = document.getElementById("loginRequiredModal");
+        var closeRequiredModalBtn = document.getElementById("closeRequiredModalBtn");
+        var cancelRequiredBtn = document.getElementById("cancelRequiredBtn");
+        var goToLoginBtn = document.getElementById("goToLoginBtn");
+        var loginRequiredText = document.getElementById("loginRequiredText");
+
+        // ===== دوال المودال =====
+        function showMessage(text, type) {
+            if (!messageBox) return;
+            messageBox.textContent = text;
+            messageBox.className = "message " + type;
+            messageBox.style.display = "block";
+            setTimeout(function() {
+                messageBox.style.display = "none";
+                messageBox.className = "message";
+            }, 4000);
+        }
+
+        function openAuthModal() {
+            if (!authModal) return;
+            authModal.classList.add("active");
+            loginPanel.style.display = "block";
+            signupPanel.style.display = "none";
+            document.getElementById("modalTitle").textContent = "SYRELIS";
+            document.getElementById("modalSubtitle").textContent = "سجل دخولك للوصول إلى حسابك";
+        }
+
+        function closeAuthModal() {
+            if (authModal) authModal.classList.remove("active");
+        }
+
+        function openLoginRequiredModal(message) {
+            if (!loginRequiredModal) return;
+            if (loginRequiredText) {
+                loginRequiredText.innerHTML = message;
+            }
+            loginRequiredModal.classList.add("active");
+        }
+
+        function closeLoginRequiredModal() {
+            if (loginRequiredModal) loginRequiredModal.classList.remove("active");
+        }
+
+        // ===== تسجيل الدخول =====
+        function handleLogin() {
+            var email = loginEmail?.value?.trim() || "";
+            var password = loginPassword?.value || "";
+
+            if (!email || !password) {
+                showMessage("الرجاء إدخال البريد الإلكتروني وكلمة المرور", "error");
+                return;
+            }
+
+            showMessage("مرحباً بعودتك! تم تسجيل الدخول بنجاح", "success");
+            localStorage.setItem("syrelis_logged_in", "true");
+            isLoggedIn = true;
+
+            setTimeout(function() {
+                closeAuthModal();
+                updateAuthUI();
+                location.reload();
+            }, 1500);
+        }
+
+        // ===== إنشاء حساب =====
+        function handleSignup() {
+            var name = signupName?.value?.trim() || "";
+            var email = signupEmail?.value?.trim() || "";
+            var password = signupPassword?.value || "";
+            var confirm = signupConfirm?.value || "";
+
+            if (!name || !email || !password || !confirm) {
+                showMessage("الرجاء ملء جميع الحقول", "error");
+                return;
+            }
+            if (password.length < 8) {
+                showMessage("كلمة المرور يجب أن تكون 8 أحرف على الأقل", "error");
+                return;
+            }
+            if (password !== confirm) {
+                showMessage("كلمتا المرور غير متطابقتين", "error");
+                return;
+            }
+
+            showMessage("تهانينا " + name + "! تم إنشاء حسابك بنجاح", "success");
+            localStorage.setItem("syrelis_logged_in", "true");
+            isLoggedIn = true;
+
+            setTimeout(function() {
+                closeAuthModal();
+                updateAuthUI();
+                location.reload();
+            }, 1500);
+        }
+
+        // ===== تسجيل الخروج =====
+        function handleLogout() {
+            if (!confirm("هل أنت متأكد من تسجيل الخروج؟")) return;
+            localStorage.removeItem("syrelis_logged_in");
+            isLoggedIn = false;
+            updateAuthUI();
+            location.reload();
+        }
+
+        // ===== تحديث واجهة زر الدخول =====
+        function updateAuthUI() {
+            var btn = openModalBtn;
+            if (!btn) return;
+            if (isLoggedIn) {
+                btn.textContent = "تسجيل الخروج";
+                btn.classList.add("logout-active");
+                btn.onclick = handleLogout;
+            } else {
+                btn.textContent = "تسجيل الدخول";
+                btn.classList.remove("logout-active");
+                btn.onclick = openAuthModal;
+            }
+        }
+
+        // ===== التنقل =====
+        function handleNavigation(e, url, targetName) {
+            e.preventDefault();
+            if (isLoggedIn) {
+                window.location.href = url;
+            } else {
+                var message = "للوصول إلى هذه الصفحة، يجب أن تكون مسجلاً دخولك في حسابك.<br>سجّل دخولك الآن واستمتع بجميع خدماتنا!";
+                if (targetName === "announce") {
+                    message = "لإعلان عقارك، يجب أن تكون مسجلاً دخولك في حسابك.<br>سجّل دخولك الآن وانشر عقارك بكل سهولة!";
+                } else if (targetName === "account") {
+                    message = "للوصول إلى حسابك، يجب أن تكون مسجلاً دخولك.<br>سجّل دخولك الآن لإدارة عقاراتك وبياناتك!";
+                }
+                openLoginRequiredModal(message);
+            }
+        }
+
+             // ===== المفضلة =====
+        function toggleFavorite(btn) {
+            var propertyId = parseInt(btn.dataset.id);
+            console.log("🔄 إضافة/إزالة من المفضلة للعقار:", propertyId);
+
+            var favorites = JSON.parse(localStorage.getItem("syrelis_favorites") || "[]");
+            var index = favorites.findIndex(function(f) { return f.id === propertyId; });
+
+            if (index > -1) {
+                favorites.splice(index, 1);
+                btn.classList.remove("added");
+                btn.querySelector("i").className = "far fa-heart";
+                btn.querySelector("span").textContent = "أضف للمفضلة";
+                console.log("❌ تمت الإزالة من المفضلة");
+            } else {
+                var card = btn.closest(".property-card");
+                if (!card) {
+                    console.error("❌ لم يتم العثور على البطاقة");
+                    return;
+                }
+
+                var title = card.querySelector(".property-title")?.textContent || "عقار بدون عنوان";
+                var price = card.querySelector(".price-original")?.textContent || "";
+                var img = card.querySelector(".property-image img")?.src || "";
+                var location = card.querySelector(".property-location span")?.textContent || "";
+
+                favorites.unshift({
+                    id: propertyId,
+                    title: title,
+                    price: price,
+                    img: img,
+                    location: location,
+                    addedAt: new Date().toISOString()
+                });
+
+                btn.classList.add("added");
+                btn.querySelector("i").className = "fas fa-heart";
+                btn.querySelector("span").textContent = "في المفضلة";
+                console.log("✅ تمت الإضافة إلى المفضلة");
+            }
+
+            localStorage.setItem("syrelis_favorites", JSON.stringify(favorites));
+            console.log("📋 عدد المفضلات:", favorites.length);
+        }
+
+        // ===== الأحداث =====
+        document.addEventListener("DOMContentLoaded", function() {
+            updateAuthUI();
+
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener("click", closeAuthModal);
+            }
+            if (authModal) {
+                authModal.addEventListener("click", function(e) {
+                    if (e.target === authModal) closeAuthModal();
+                });
+            }
+            if (switchToSignup) {
+                switchToSignup.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    loginPanel.style.display = "none";
+                    signupPanel.style.display = "block";
+                    document.getElementById("modalTitle").textContent = "انضم إلينا";
+                    document.getElementById("modalSubtitle").textContent = "أفتح حسابك الآن واستمتع بخدماتنا";
+                });
+            }
+            if (switchToLogin) {
+                switchToLogin.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    signupPanel.style.display = "none";
+                    loginPanel.style.display = "block";
+                    document.getElementById("modalTitle").textContent = "SYRELIS";
+                    document.getElementById("modalSubtitle").textContent = "سجل دخولك للوصول إلى حسابك";
+                });
+            }
+
+            if (doLoginBtn) {
+                doLoginBtn.addEventListener("click", handleLogin);
+            }
+            if (doSignupBtn) {
+                doSignupBtn.addEventListener("click", handleSignup);
+            }
+
+            if (closeRequiredModalBtn) {
+                closeRequiredModalBtn.addEventListener("click", closeLoginRequiredModal);
+            }
+            if (cancelRequiredBtn) {
+                cancelRequiredBtn.addEventListener("click", closeLoginRequiredModal);
+            }
+            if (loginRequiredModal) {
+                loginRequiredModal.addEventListener("click", function(e) {
+                    if (e.target === loginRequiredModal) closeLoginRequiredModal();
+                });
+            }
+            if (goToLoginBtn) {
+                goToLoginBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    closeLoginRequiredModal();
+                    setTimeout(openAuthModal, 300);
+                });
+            }
+
+            var announceLink = document.getElementById("announceLink");
+            if (announceLink) {
+                announceLink.addEventListener("click", function(e) {
+                    handleNavigation(e, "/Properties/Create", "announce");
+                });
+            }
+
+            var myAccountLink = document.getElementById("myAccountLink");
+            if (myAccountLink) {
+                myAccountLink.addEventListener("click", function(e) {
+                    handleNavigation(e, "/Dashboard/Index", "account");
+                });
+            }
+
+            var searchLink = document.getElementById("searchLink");
+            if (searchLink) {
+                searchLink.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    window.location.href = "/Search/Index";
+                });
+            }
+
+                  document.querySelectorAll(".btn-favorite").forEach(function(btn) {
+            btn.addEventListener("click", function(e) {
+                e.stopPropagation();
+                toggleFavorite(btn);
+            });
+
+            var propertyId = parseInt(btn.dataset.id);
+            var favorites = JSON.parse(localStorage.getItem("syrelis_favorites") || "[]");
+            if (favorites.some(function(f) { return f.id === propertyId; })) {
+                btn.classList.add("added");
+                btn.querySelector("i").className = "fas fa-heart";
+                btn.querySelector("span").textContent = "في المفضلة";
+            }
+        });
+
+            document.addEventListener("keydown", function(e) {
+                if (e.key === "Escape") {
+                    if (authModal?.classList.contains("active")) closeAuthModal();
+                    if (loginRequiredModal?.classList.contains("active")) closeLoginRequiredModal();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -18,9 +18,737 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/search.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
-        /* جميع التنسيقات كما هي (تم حذفها للاختصار، ولكن ضعها كاملة من الملف السابق) */
-        /* ... ضع كل التنسيقات هنا ... */
+        /* ===== أيقونة المستخدم الاحترافية ===== */
+        .user-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+            color: #0b1320;
+            font-weight: 800;
+            font-size: 1.1rem;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+            text-decoration: none;
+            user-select: none;
+            position: relative;
+        }
+
+            .user-avatar:hover {
+                transform: scale(1.08);
+                box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+                border-color: #d4af37;
+            }
+
+            .user-avatar .tooltip {
+                position: absolute;
+                top: 110%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #0b1320;
+                color: #d4af37;
+                padding: 6px 14px;
+                border-radius: 8px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(212, 175, 55, 0.2);
+                pointer-events: none;
+                font-family: 'Tajawal', sans-serif;
+            }
+
+            .user-avatar:hover .tooltip {
+                opacity: 1;
+                visibility: visible;
+                top: 120%;
+            }
+
+            .user-avatar .tooltip::before {
+                content: '';
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border: 6px solid transparent;
+                border-bottom-color: #0b1320;
+            }
+
+        .login-btn-nav {
+            background: transparent;
+            border: 1.5px dashed #d4af37;
+            color: #d4af37;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+            .login-btn-nav:hover {
+                background: #d4af37;
+                border: 1px solid rgb(50, 39, 11);
+                color: #0b1320;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            }
+
+        /* ===== نافبار ===== */
+        .navbar {
+            background: rgba(11, 19, 32, 0.96);
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            justify-content: space-between;
+            box-shadow: 0px 15px 30px -10px rgb(23, 22, 70);
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .navbar .logo {
+                width: 82px;
+                margin: 8px 0;
+                flex-shrink: 0;
+            }
+
+            .navbar .nav-links {
+                display: flex;
+                gap: 30px;
+                list-style: none;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0;
+                margin: 0;
+                align-items: center;
+                flex: 1;
+            }
+
+                .navbar .nav-links a {
+                    color: #f2efea;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    transition: 0.3s;
+                    white-space: nowrap;
+                }
+
+                    .navbar .nav-links a:hover {
+                        color: #d4af37;
+                    }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            padding: 30px 35px;
+            margin-bottom: 49px;
+            box-shadow: 0 8px 24px rgba(11, 19, 32, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+            border-bottom: 2px solid #e2bd46;
+        }
+
+        .page-title {
+            color: #e2bd46 !important;
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin: 5px 0 0 0;
+        }
+
+        .card {
+            max-width: 100%;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 28px;
+            margin-top: 30px;
+            margin-bottom: 61px;
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--bg-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .card-header .icon-circle {
+                width: 40px;
+                height: 40px;
+                background: #192e43;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffd754;
+                font-size: 1.2rem;
+            }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+            .form-group label {
+                font-weight: 500;
+                color: var(--dark);
+                font-size: 1rem;
+            }
+
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: "Tajawal", sans-serif;
+            font-size: 0.95rem;
+            background: var(--white);
+            color: var(--dark);
+            transition: all 0.25s;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #192e43;
+                box-shadow: 0 0 0 2px rgb(215 219 232);
+            }
+
+        select.form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            padding: 10px 12px 10px 35px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 26px;
+            border: none;
+            border-radius: 10px;
+            font-family: "Tajawal", sans-serif;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--dark);
+            color: #ffffff;
+            box-shadow: -1px 2px 9px rgb(11 19 32 / 73%);
+        }
+
+            .btn-primary:hover {
+                background: #ffffff;
+                color: #1a3250;
+            }
+
+        .btn-secondary {
+            border: 1px solid #1a3250;
+            background: #1a314d;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            .btn-secondary:hover {
+                background: #ffffff;
+                color: #1a3250;
+            }
+
+        .form-actions {
+            display: flex !important;
+            justify-content: space-between;
+            padding-top: 23px !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 11px;
+        }
+
+        .error-message {
+            color: #e5192c;
+            font-size: 0.95rem;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .property-card {
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--white);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+            .property-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .property-img {
+            height: 190px;
+            background: var(--bg-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .property-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .property-badge {
+            position: absolute;
+            top: 11px;
+            right: 11px;
+            background: var(--dark);
+            color: var(--gold);
+            padding: 4px 13px;
+            border-radius: 18px;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .property-body {
+            padding: 17px;
+        }
+
+        .property-price {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .property-title {
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .property-location {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .property-features {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+            .property-features span {
+                background: var(--bg-light);
+                padding: 4px 10px;
+                border-radius: 6px;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+        }
+
+            .empty-state i {
+                font-size: 4rem;
+                color: var(--gold);
+                margin-bottom: 20px;
+                opacity: 0.8;
+            }
+
+            .empty-state h3 {
+                font-size: 1.5rem;
+                color: #ffffff !important;
+                margin-bottom: 10px;
+            }
+
+            .empty-state p {
+                font-size: 1rem;
+                color: #d4af37 !important;
+                opacity: 0.8;
+            }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 400;
+            margin-right: 10px;
+        }
+
+        /* ===== مودال ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+            .modal-overlay.active {
+                visibility: visible;
+                opacity: 1;
+            }
+
+        .modal-card {
+            background: linear-gradient(145deg, #e6e9f8);
+            max-width: 440px;
+            width: 90%;
+            border-radius: 25px;
+            position: relative;
+            transform: scale(0.95);
+            transition: 0.3s;
+            box-shadow: 0 40px 70px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0b1320, #1a2a3e);
+            padding: 27px 0 20px;
+            text-align: center;
+            position: relative;
+        }
+
+            .modal-header .logo-icon {
+                position: relative;
+            }
+
+            .modal-header .logo_loin {
+                top: -21%;
+                right: -70%;
+                position: absolute;
+                width: 136px;
+            }
+
+            .modal-header h2 {
+                font-family: "Cinzel", serif;
+                font-size: 1.6rem;
+                color: #d6cb85;
+            }
+
+            .modal-header p {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.8rem;
+                margin-top: 5px;
+            }
+
+            .modal-header .close-modal {
+                position: absolute;
+                top: 18px;
+                left: 20px;
+                font-size: 31px;
+                cursor: pointer;
+                color: #d7d5aa;
+                transition: 0.2s;
+                background: none;
+                border: none;
+            }
+
+                .modal-header .close-modal:hover {
+                    color: #d4af37;
+                }
+
+        .modal-body {
+            padding: 8px 30px 30px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+            .input-group i {
+                position: absolute;
+                right: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #d4af37;
+            }
+
+            .input-group input {
+                width: 100%;
+                padding: 14px 45px 14px 20px;
+                border: 1.5px solid #e8e8ec;
+                border-radius: 60px;
+                font-size: 0.9rem;
+                font-family: "Tajawal", sans-serif;
+                background: #f9f9fc;
+            }
+
+                .input-group input:focus {
+                    outline: none;
+                    border-color: #d4af37;
+                    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+                }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #19283c, #1A2A3E);
+            border: 1px solid #D4AF37;
+            border-radius: 60px;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+            .auth-btn:hover {
+                background: #d4af37;
+                color: #0b1320;
+            }
+
+        .toggle-auth {
+            padding-top: 33px;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+            .toggle-auth a {
+                color: #19283c;
+                font-weight: 800;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+            text-align: center;
+            display: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+            .message.error {
+                background: #fee2e2;
+                color: #dc2626;
+                display: block;
+            }
+
+            .message.success {
+                background: #d1fae5;
+                color: #059669;
+                display: block;
+            }
+
+        .scroll-top {
+            color: #192e43;
+            font-size: 18px;
+            position: fixed;
+            bottom: 21px;
+            right: 26px;
+            width: 44px;
+            height: 44px;
+            background: #ffffff;
+            border: 3px solid #1a314d;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+            .scroll-top.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        /* ===== RESPONSIVE ===== */
+        @@media screen and (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+                .navbar .nav-links {
+                    gap: 12px;
+                }
+
+                    .navbar .nav-links a {
+                        font-size: 0.8rem;
+                    }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 1.4rem;
+                justify-content: center;
+            }
+
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-group {
+                justify-content: center;
+            }
+
+            .property-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 0.9rem;
+            }
+
+            .login-btn-nav {
+                padding: 8px 16px;
+                font-size: 0.75rem;
+            }
+
+            .navbar-right {
+                gap: 10px;
+                margin-left: 0;
+            }
+        }
+
+        @@media screen and (max-width: 480px) {
+            .navbar .nav-links {
+                gap: 8px;
+            }
+
+                .navbar .nav-links a {
+                    font-size: 0.7rem;
+                }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            .page-header {
+                padding: 15px;
+            }
+
+            .page-title {
+                font-size: 1.2rem;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            .property-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -30,16 +758,16 @@
         <img class="logo" src="~/image/hero.png" alt="SYRELIS" />
         <ul class="nav-links">
             <li><a href="/Home/Index"><span class="link_span">الرئيسية</span></a></li>
-            <li><a href="/Properties/Create" target="_blank" id="announceLink"><span class="link_span">أعلن عن عقارك</span></a></li>
+            <li><a href="/Properties/Create"><span class="link_span">أعلن عن عقارك</span></a></li>
             <li><a href="/Search/Index"><span class="link_span">ابحث عن عقارك</span></a></li>
-            <li><a href="/Account/Index"><span class="link_span">حسابي</span></a></li>
+            <li><a href="/Properties/MyFavorites"><span class="link_span">حسابي</span></a></li>
             <li><a href="/Home/Index#contactSection"><span class="link_span">تواصل معنا</span></a></li>
         </ul>
         <div class="navbar-right">
             @if (SignInManager.IsSignedIn(User))
             {
                 var userName = User.Identity?.Name ?? "مستخدم";
-                var firstLetter = userName.Length > 0 ? userName[0].ToString() : "?";
+                var firstLetter = userName.Length > 0 ? userName[0].ToString().ToUpper() : "?";
                 <div class="user-avatar" title="@userName">
                  
                     
@@ -67,18 +795,28 @@
             </div>
             <form id="searchForm" novalidate>
                 <div class="search-grid">
-
                     <!-- نوع العقار -->
-                    <div class="form-group">
-                        <label><i class="fa-solid fa-building"></i> نوع العقار</label>
-                        <select class="form-control" id="searchType">
-                            <option value="" disabled selected hidden>اختر نوع العقار</option>
-                            @foreach (var type in propertyTypes)
+                  <div class="form-group">
+    <label><i class="fa-solid fa-city"></i> المدينة</label>
+                        <select class="form-control" id="searchCity" name="city">
+                            <option value="" disabled selected hidden>اختر المدينة</option>
+                            @if (ViewBag.Cities != null)
                             {
-                                <option value="@type.Id">@type.NameAr</option>
+                                var selectedCity = ViewBag.SelectedCity as string;
+                                foreach (var cityItem in ViewBag.Cities)
+                                {
+                                    if (!string.IsNullOrEmpty(selectedCity) && selectedCity == cityItem.NameAr)
+                                    {
+                                        <option value="@cityItem.NameAr" selected="selected">@cityItem.NameAr</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@cityItem.NameAr">@cityItem.NameAr</option>
+                                    }
+                                }
                             }
                         </select>
-                    </div>
+</div>
 
                     <!-- طبيعة العقار -->
                     <div class="form-group">
@@ -107,12 +845,14 @@
                         <input type="text" class="form-control" id="searchNeighborhood" placeholder="مثال: المالكي، الشعلان..." />
                     </div>
 
-                    <!-- السعر (من - إلى) -->
+                    <!-- السعر من -->
                     <div class="form-group">
                         <label><i class="fa-solid fa-dollar-sign"></i> السعر من</label>
                         <input type="number" class="form-control" id="searchMinPrice" placeholder="أدنى سعر" min="0" data-validate="positive" />
                         <span class="error-message" id="error-searchMinPrice"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
                     </div>
+
+                    <!-- السعر إلى -->
                     <div class="form-group">
                         <label><i class="fa-solid fa-dollar-sign"></i> السعر إلى</label>
                         <input type="number" class="form-control" id="searchMaxPrice" placeholder="أقصى سعر" min="0" data-validate="positive" />
@@ -129,12 +869,14 @@
                         </select>
                     </div>
 
-                    <!-- المساحة (من - إلى) -->
+                    <!-- المساحة من -->
                     <div class="form-group">
                         <label><i class="fa-solid fa-vector-square"></i> المساحة من (م²)</label>
                         <input type="number" class="form-control" id="searchMinArea" placeholder="أدنى مساحة" min="0" data-validate="positive" />
                         <span class="error-message" id="error-searchMinArea"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
                     </div>
+
+                    <!-- المساحة إلى -->
                     <div class="form-group">
                         <label><i class="fa-solid fa-vector-square"></i> المساحة إلى (م²)</label>
                         <input type="number" class="form-control" id="searchMaxArea" placeholder="أقصى مساحة" min="0" data-validate="positive" />
@@ -168,7 +910,6 @@
                         <input type="number" class="form-control" id="searchTotalFloors" placeholder="أدخل عدد الطوابق" min="0" data-validate="positive" />
                         <span class="error-message" id="error-searchTotalFloors"><i class="fa-solid fa-circle-exclamation"></i> قيمة غير سالبة</span>
                     </div>
-
                 </div>
 
                 <div class="form-actions">

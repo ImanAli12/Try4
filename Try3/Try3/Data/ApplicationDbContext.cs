@@ -19,7 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Favorite> Favorites => Set<Favorite>();
     public DbSet<Cluster> Clusters => Set<Cluster>();
     public DbSet<Feature> Features => Set<Feature>();
-    public DbSet<SimilarProperty> SimilarProperties { get; set; }
+    public DbSet<PropertyRequest> PropertyRequests => Set<PropertyRequest>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
